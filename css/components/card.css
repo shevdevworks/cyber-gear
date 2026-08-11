@@ -1,0 +1,545 @@
+/* ==========================================================================
+   CyberGear — Product Card Component
+   Key visual element of the project. Premium hover, shadows, badges.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   PRODUCT CARD — base card
+-------------------------------------------------------------------------- */
+
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  /*
+    Multi-layered shadow from variables.css.
+    Third layer: 0 0 0 1px border-default — a "border via box-shadow".
+    Why this instead of border?
+    Because border changes box dimensions and breaks layout on hover.
+    box-shadow doesn't affect size and animates smoothly.
+  */
+  box-shadow: var(--shadow-card);
+
+  /* Overflow hidden clips the image to border-radius */
+  overflow: hidden;
+
+  /*
+    will-change tells the browser the element will be animated.
+    The browser creates a dedicated compositing layer (GPU layer) ahead of time.
+    This eliminates "jank" on first hover.
+    Do NOT apply will-change to every element — it eats GPU memory.
+  */
+  will-change: transform, box-shadow;
+
+  transition:
+    transform    var(--duration-normal) var(--ease-out-expo),
+    box-shadow   var(--duration-normal) var(--ease-out-expo);
+
+  /* Initial state for entrance animation (controlled by JS) */
+  animation: cardAppear var(--duration-slow) var(--ease-out-expo) both;
+}
+
+/*
+  Entrance animation for cards when the catalog loads.
+  JS adds a CSS custom property --card-index for a stagger effect:
+  style="--card-index: 3" → delay 3 × 70ms = 210ms
+*/
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.product-card {
+  animation-delay: calc(var(--card-index, 0) * 70ms);
+}
+
+/* --------------------------------------------------------------------------
+   HOVER STATE — card "lifts" with a purple glow
+-------------------------------------------------------------------------- */
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Cyan bottom line on hover — like an RGB accent */
+.product-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 58, 237, 0.6),
+    rgba(6, 182, 212, 0.9),
+    rgba(124, 58, 237, 0.6),
+    transparent
+  );
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition:
+    opacity   var(--duration-normal) var(--ease-out-expo),
+    transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.product-card:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* --------------------------------------------------------------------------
+   PRODUCT CARD IMAGE — image container
+-------------------------------------------------------------------------- */
+
+.product-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  /*
+    object-fit: contain on .product-card__image keeps real PNGs uncropped.
+    Background: a deep purple radial gradient.
+    When real photos arrive they'll sit perfectly on this background.
+  */
+  background:
+    radial-gradient(ellipse at 50% 65%, rgba(124, 58, 237, 0.14) 0%, rgba(7,7,15,0) 68%),
+    #07070F;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.product-card__image {
+  width: 100%;
+  height: 100%;
+  /*
+    contain — doesn't crop the image (important for PNG peripherals).
+    scale — subtle zoom on hover.
+  */
+  object-fit: contain;
+  object-position: center;
+  padding: var(--space-3); /* Padding so the image doesn't touch the edges */
+  transition: transform var(--duration-slow) var(--ease-out-expo);
+}
+
+.product-card:hover .product-card__image {
+  transform: scale(1.05);
+}
+
+/* Placeholder while the image hasn't loaded yet */
+.product-card__image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  opacity: 0.1;
+}
+
+/* --------------------------------------------------------------------------
+   BADGES — badges over the image
+-------------------------------------------------------------------------- */
+
+.product-card__badges {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  z-index: var(--z-raised);
+}
+
+/* Base badge style */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+  /*
+    backdrop-filter: blur — frosted glass over the image.
+    Works in modern browsers, degrades gracefully
+    (just becomes semi-transparent without blur in older ones).
+  */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* "New" badge — electric cyan */
+.badge--new {
+  color: var(--color-accent-blue);
+  background: var(--color-new-badge-ghost);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+}
+
+/* Discount badge — purple */
+.badge--discount {
+  color: var(--color-accent-bright);
+  background: var(--color-accent-ghost);
+  border: 1px solid var(--color-border-accent);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
+}
+
+/* "Out of stock" badge */
+.badge--out-of-stock {
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   WISHLIST BUTTON — wishlist button over the image
+-------------------------------------------------------------------------- */
+
+.product-card__wishlist {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: var(--z-raised);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+
+  color: var(--color-text-muted);
+  background: rgba(13, 15, 20, 0.6);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border-subtle);
+
+  /*
+    Button is hidden at rest, appears on card hover.
+    opacity + pointer-events — standard pattern for "invisible but clickable".
+    Only opacity: 0 does not disable clicks — pointer-events: none is needed.
+  */
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.85);
+
+  transition:
+    opacity    var(--duration-fast) var(--ease-out-expo),
+    transform  var(--duration-fast) var(--ease-out-expo),
+    color      var(--duration-fast) var(--ease-out-expo),
+    background var(--duration-fast) var(--ease-out-expo);
+}
+
+.product-card:hover .product-card__wishlist {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.product-card__wishlist:hover {
+  color: var(--color-error);
+  background: var(--color-error-ghost);
+  border-color: rgba(255, 90, 106, 0.3);
+}
+
+/* Active state (added to wishlist) */
+.product-card__wishlist--active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+  color: var(--color-error);
+}
+
+/* --------------------------------------------------------------------------
+   PRODUCT CARD BODY — main card content
+-------------------------------------------------------------------------- */
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Stretches to push the footer down */
+  padding: var(--space-4);
+  gap: var(--space-3);
+}
+
+/* Brand */
+.product-card__brand {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-accent-dim);
+}
+
+/* Product name */
+.product-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+
+  /*
+    Limit the name to two lines.
+    -webkit-line-clamp is the only cross-browser way to clamp text by lines.
+  */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Rating */
+.product-card__rating {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.product-card__stars {
+  display: flex;
+  gap: 2px;
+  color: var(--color-accent);
+  font-size: var(--text-xs);
+  line-height: 1;
+}
+
+.product-card__rating-value {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.product-card__review-count {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   PRODUCT CARD FOOTER — price and button
+-------------------------------------------------------------------------- */
+
+.product-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  padding-top: 0;
+  margin-top: auto;
+}
+
+/* Price block */
+.product-card__price-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.product-card__price {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+}
+
+.product-card__old-price {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   ADD TO CART BUTTON — main CTA of the card
+-------------------------------------------------------------------------- */
+
+.product-card__add-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+
+  color: var(--color-text-inverse);
+  background: var(--color-accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-btn-accent);
+
+  transition:
+    background   var(--duration-fast) var(--ease-out-expo),
+    box-shadow   var(--duration-fast) var(--ease-out-expo),
+    transform    var(--duration-fast) var(--ease-spring);
+}
+
+.product-card__add-btn:hover {
+  background: var(--color-accent-bright);
+  box-shadow: var(--shadow-btn-accent-hover);
+}
+
+.product-card__add-btn:active {
+  /* Micro-interaction: subtle press-in on click */
+  transform: scale(0.92);
+}
+
+/* "Added" state — cyan flash */
+.product-card__add-btn--added {
+  background: var(--color-accent-blue);
+  box-shadow:
+    0 2px 8px rgba(6, 182, 212, 0.30),
+    0 0 0 1px rgba(6, 182, 212, 0.50);
+}
+
+.product-card__add-btn--added:hover {
+  background: var(--color-accent-blue);
+  box-shadow:
+    0 4px 20px rgba(6, 182, 212, 0.50),
+    0 0 0 1px rgba(6, 182, 212, 0.80);
+}
+
+/* "Out of stock" state */
+.product-card__add-btn:disabled {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   OUT OF STOCK CARD — card for an out-of-stock product
+   The button is already grey via :disabled (see above), but previously that
+   was the only hint — the photo and hover looked like an in-stock product.
+   Now the photo is dimmer, and the hover effects that suggest purchase
+   (card lift, photo zoom, cyan line) are disabled.
+-------------------------------------------------------------------------- */
+
+.product-card--out-of-stock .product-card__image {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+}
+
+/* Don't "lift" the card on hover — it doesn't lead to a purchase */
+.product-card--out-of-stock:hover {
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+.product-card--out-of-stock:hover .product-card__image {
+  transform: none;
+}
+
+/* Cyan line signals "add to cart" — inappropriate here */
+.product-card--out-of-stock::after {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   LIST VIEW — "list" layout
+   When JS adds catalog__grid--list, cards rearrange into rows.
+-------------------------------------------------------------------------- */
+
+.catalog__grid--list .product-card {
+  flex-direction: row;
+  /* Fixed height for list uniformity */
+  min-height: 140px;
+}
+
+.catalog__grid--list .product-card__media {
+  /* In list mode the media is a square block on the left */
+  width: 180px;
+  flex-shrink: 0;
+  aspect-ratio: unset;
+  border-bottom: none;
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.catalog__grid--list .product-card__body {
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-5);
+}
+
+.catalog__grid--list .product-card__footer {
+  padding: 0;
+  margin-top: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+-------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .product-card__body {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .product-card__footer {
+    padding: var(--space-3);
+    padding-top: 0;
+  }
+
+  .product-card__name {
+    font-size: var(--text-sm);
+  }
+
+  .product-card__price {
+    font-size: var(--text-base);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   SPEC CHIPS — specs on the card
+-------------------------------------------------------------------------- */
+
+.product-card__specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  list-style: none;
+  margin-top: auto;
+}
+
+.spec-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   STARS — rating stars
+-------------------------------------------------------------------------- */
+
+.star { font-size: 11px; line-height: 1; }
+.star--full  { color: var(--color-accent); }
+.star--half  { color: var(--color-accent); opacity: 0.5; }
+.star--empty { color: var(--color-text-disabled); }

@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CyberGear — custom peripherals for those who don't compromise" />
+
+  <title>CyberGear — Custom Peripherals</title>
+
+  <!-- Open Graph (Facebook, LinkedIn, Discord, Telegram) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CyberGear" />
+  <meta property="og:title" content="CyberGear — Custom Peripherals" />
+  <meta property="og:description" content="Pro-grade keyboards, mice and headsets — handpicked for gamers, engineers and creators who demand the best." />
+  <meta property="og:image" content="assets/images/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://shevdevworks.github.io/cyber-gear/" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CyberGear — Custom Peripherals" />
+  <meta name="twitter:description" content="Pro-grade keyboards, mice and headsets — handpicked for gamers, engineers and creators who demand the best." />
+  <meta name="twitter:image" content="assets/images/og-cover.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="icon" href="favicon.ico" />
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components/header.css" />
+  <link rel="stylesheet" href="css/components/hero.css" />
+  <link rel="stylesheet" href="css/components/filters.css" />
+  <link rel="stylesheet" href="css/components/catalog.css" />
+  <link rel="stylesheet" href="css/components/card.css" />
+  <link rel="stylesheet" href="css/components/cart.css" />
+  <link rel="stylesheet" href="css/components/toast.css" />
+  <link rel="stylesheet" href="css/components/checkout.css" />
+  <link rel="stylesheet" href="css/components/footer.css" />
+</head>
+
+<body class="page">
+
+  <header class="header" role="banner" data-js="header">
+    <div class="container header__inner">
+
+      <a href="./" class="header__logo" aria-label="CyberGear — home">
+        <span class="header__logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+        </span>
+        <span class="header__logo-text">
+          Cyber<span class="header__logo-accent">Gear</span>
+        </span>
+      </a>
+
+      <nav class="header__nav" aria-label="Product categories">
+        <ul class="header__nav-list" role="list">
+          <li class="header__nav-item">
+            <button
+              class="header__nav-link header__nav-link--active"
+              data-js="nav-category"
+              data-category="all"
+              aria-current="true"
+            >
+              All
+            </button>
+          </li>
+          <li class="header__nav-item">
+            <button
+              class="header__nav-link"
+              data-js="nav-category"
+              data-category="keyboards"
+            >
+              Keyboards
+            </button>
+          </li>
+          <li class="header__nav-item">
+            <button
+              class="header__nav-link"
+              data-js="nav-category"
+              data-category="mice"
+            >
+              Mice
+            </button>
+          </li>
+          <li class="header__nav-item">
+            <button
+              class="header__nav-link"
+              data-js="nav-category"
+              data-category="headsets"
+            >
+              Headsets
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header__actions">
+        <button
+          class="header__action-btn"
+          data-js="search-toggle"
+          aria-label="Open search"
+          aria-expanded="false"
+          aria-controls="search-panel"
+        >
+          <svg class="header__action-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="m14 14 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <button
+          class="header__cart-btn"
+          data-js="cart-toggle"
+          aria-label="Open cart"
+          aria-expanded="false"
+          aria-controls="cart-drawer"
+        >
+          <svg class="header__action-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M2.5 2.5h2l2.667 8.667a1 1 0 0 0 .959.666H14a1 1 0 0 0 .959-.714L16.5 6.5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8.5" cy="16.5" r="1" fill="currentColor"/>
+            <circle cx="13.5" cy="16.5" r="1" fill="currentColor"/>
+          </svg>
+          <span
+            class="header__cart-count"
+            data-js="cart-count"
+            aria-hidden="true"
+            hidden
+          >
+            0
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="header__search-panel"
+      id="search-panel"
+      data-js="search-panel"
+      hidden
+    >
+      <div class="container">
+        <label class="sr-only" for="search-input">Search products</label>
+        <div class="header__search-wrap">
+          <svg class="header__search-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+            <path d="m14 14 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            class="header__search-input"
+            id="search-input"
+            type="search"
+            placeholder="Search keyboards, mice, headsets..."
+            autocomplete="off"
+            data-js="search-input"
+          />
+          <kbd class="header__search-hint">ESC</kbd>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="CyberGear tagline">
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <div class="hero__label">
+          <span class="hero__label-dot" aria-hidden="true"></span>
+          Custom peripherals · Free shipping over $200
+        </div>
+        <h1 class="hero__title">
+          Built for those who<br>
+          <span class="hero__title-accent">don't compromise</span>
+        </h1>
+        <p class="hero__sub">
+          Pro-grade keyboards, mice and headsets — handpicked for gamers,
+          engineers and creators who demand the best.
+        </p>
+        <div class="hero__stats">
+          <div class="hero__stat">
+            <div class="hero__stat-value"><em>12</em></div>
+            <div class="hero__stat-label">Products</div>
+          </div>
+          <div class="hero__stat">
+            <div class="hero__stat-value"><em>12</em></div>
+            <div class="hero__stat-label">Brands</div>
+          </div>
+          <div class="hero__stat">
+            <div class="hero__stat-value"><em>$69</em></div>
+            <div class="hero__stat-label">Starting from</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero__visual" aria-hidden="true">
+        <svg class="hero__energy" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="heroBoltGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#7C3AED" />
+              <stop offset="50%" stop-color="#A855F7" />
+              <stop offset="100%" stop-color="#06B6D4" />
+            </linearGradient>
+            <radialGradient id="heroGlowGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#A855F7" stop-opacity="0.4" />
+              <stop offset="100%" stop-color="#A855F7" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <circle class="hero__energy-glow" cx="100" cy="62" r="58" fill="url(#heroGlowGradient)" />
+          <polygon
+            class="hero__energy-hex"
+            points="100,18 138,40 138,84 100,106 62,84 62,40"
+            fill="none"
+            stroke="url(#heroBoltGradient)"
+            stroke-width="1.5"
+          />
+          <polygon
+            class="hero__energy-bolt"
+            points="104,22 64,70 100,70 96,102 136,54 100,54 104,22"
+            fill="url(#heroBoltGradient)"
+          />
+          <polygon class="hero__energy-spark hero__energy-spark--1" points="36,15 23,31 35,31 34,41 47,25 35,25 36,15" fill="#06B6D4" />
+          <polygon class="hero__energy-spark hero__energy-spark--2" points="166,82 153,98 165,98 164,108 177,92 165,92 166,82" fill="#C084FC" />
+          <polygon class="hero__energy-spark hero__energy-spark--3" points="151,20 141,32 150,32 149,40 159,28 150,28 151,20" fill="#06B6D4" />
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <main class="main" id="main-content" role="main">
+    <div class="container">
+      <div class="main__layout">
+
+        <aside
+          class="filters"
+          id="filters-panel"
+          data-js="filters-panel"
+          aria-label="Product filters"
+        >
+          <div class="filters__header">
+            <h2 class="filters__title">Filters</h2>
+            <button
+              class="filters__close-btn"
+              data-js="filters-close"
+              aria-label="Close filters"
+              hidden
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M2 2l14 14M16 2 2 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="filter-group" data-js="filter-group">
+            <button
+              class="filter-group__toggle"
+              aria-expanded="true"
+              aria-controls="filter-price"
+              data-js="filter-toggle"
+            >
+              <span class="filter-group__label">Price</span>
+              <svg class="filter-group__chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="filter-group__body" id="filter-price">
+              <div class="filter-price" data-js="filter-price">
+                <div class="filter-price__inputs">
+                  <div class="filter-price__field">
+                    <label class="filter-price__label" for="price-min">from</label>
+                    <input
+                      class="filter-price__input"
+                      id="price-min"
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      data-js="price-min"
+                    />
+                  </div>
+                  <span class="filter-price__sep" aria-hidden="true">—</span>
+                  <div class="filter-price__field">
+                    <label class="filter-price__label" for="price-max">to</label>
+                    <input
+                      class="filter-price__input"
+                      id="price-max"
+                      type="number"
+                      placeholder="500"
+                      min="0"
+                      data-js="price-max"
+                    />
+                  </div>
+                </div>
+                <div class="filter-price__range" data-js="price-range" aria-hidden="true">
+                  <div class="filter-price__track">
+                    <div class="filter-price__fill" data-js="price-fill"></div>
+                  </div>
+                  <input class="filter-price__thumb" type="range" min="0" max="100" value="0" data-js="range-min" aria-label="Min price" />
+                  <input class="filter-price__thumb" type="range" min="0" max="100" value="100" data-js="range-max" aria-label="Max price" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider" role="separator"></div>
+
+          <div class="filter-group" data-js="filter-group">
+            <button
+              class="filter-group__toggle"
+              aria-expanded="true"
+              aria-controls="filter-category"
+              data-js="filter-toggle"
+            >
+              <span class="filter-group__label">Category</span>
+              <svg class="filter-group__chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="filter-group__body" id="filter-category">
+              <ul class="filter-checkboxes" role="list">
+                <li class="filter-checkboxes__item">
+                  <label class="filter-checkbox" for="cat-keyboards">
+                    <input
+                      class="filter-checkbox__input"
+                      type="checkbox"
+                      id="cat-keyboards"
+                      name="category"
+                      value="keyboards"
+                      data-js="filter-checkbox"
+                      data-filter="category"
+                    />
+                    <span class="filter-checkbox__box" aria-hidden="true"></span>
+                    <span class="filter-checkbox__text">Keyboards</span>
+                    <span class="filter-checkbox__count" data-js="filter-count-keyboards">0</span>
+                  </label>
+                </li>
+                <li class="filter-checkboxes__item">
+                  <label class="filter-checkbox" for="cat-mice">
+                    <input
+                      class="filter-checkbox__input"
+                      type="checkbox"
+                      id="cat-mice"
+                      name="category"
+                      value="mice"
+                      data-js="filter-checkbox"
+                      data-filter="category"
+                    />
+                    <span class="filter-checkbox__box" aria-hidden="true"></span>
+                    <span class="filter-checkbox__text">Mice</span>
+                    <span class="filter-checkbox__count" data-js="filter-count-mice">0</span>
+                  </label>
+                </li>
+                <li class="filter-checkboxes__item">
+                  <label class="filter-checkbox" for="cat-headsets">
+                    <input
+                      class="filter-checkbox__input"
+                      type="checkbox"
+                      id="cat-headsets"
+                      name="category"
+                      value="headsets"
+                      data-js="filter-checkbox"
+                      data-filter="category"
+                    />
+                    <span class="filter-checkbox__box" aria-hidden="true"></span>
+                    <span class="filter-checkbox__text">Headsets</span>
+                    <span class="filter-checkbox__count" data-js="filter-count-headsets">0</span>
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="divider" role="separator"></div>
+
+          <div class="filter-group" data-js="filter-group">
+            <button
+              class="filter-group__toggle"
+              aria-expanded="true"
+              aria-controls="filter-connectivity"
+              data-js="filter-toggle"
+            >
+              <span class="filter-group__label">Connectivity</span>
+              <svg class="filter-group__chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="filter-group__body" id="filter-connectivity">
+              <ul class="filter-checkboxes" role="list">
+                <li class="filter-checkboxes__item">
+                  <label class="filter-checkbox" for="conn-wired">
+                    <input class="filter-checkbox__input" type="checkbox" id="conn-wired" name="connectivity" value="wired" data-js="filter-checkbox" data-filter="connectivity" />
+                    <span class="filter-checkbox__box" aria-hidden="true"></span>
+                    <span class="filter-checkbox__text">Wired</span>
+                    <span class="filter-checkbox__count">0</span>
+                  </label>
+                </li>
+                <li class="filter-checkboxes__item">
+                  <label class="filter-checkbox" for="conn-wireless">
+                    <input class="filter-checkbox__input" type="checkbox" id="conn-wireless" name="connectivity" value="wireless" data-js="filter-checkbox" data-filter="connectivity" />
+                    <span class="filter-checkbox__box" aria-hidden="true"></span>
+                    <span class="filter-checkbox__text">Wireless</span>
+                    <span class="filter-checkbox__count">0</span>
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="divider" role="separator"></div>
+
+          <div class="filter-group" data-js="filter-group">
+            <div class="filter-group__body filter-group__body--always-open">
+              <label class="filter-toggle-switch" for="filter-rgb">
+                <span class="filter-toggle-switch__text">RGB only</span>
+                <div class="filter-toggle-switch__track" aria-hidden="true">
+                  <input
+                    class="filter-toggle-switch__input"
+                    type="checkbox"
+                    id="filter-rgb"
+                    data-js="filter-checkbox"
+                    data-filter="rgb"
+                  />
+                  <span class="filter-toggle-switch__thumb"></span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="divider" role="separator"></div>
+
+          <div class="filters__actions">
+            <button class="btn btn--ghost btn--sm" data-js="filters-reset">
+              Reset all
+            </button>
+            <button class="btn btn--accent btn--sm" data-js="filters-apply" hidden>
+              Show
+              <span data-js="filters-apply-count">12</span>
+              products
+            </button>
+          </div>
+
+        </aside>
+
+        <section class="catalog" aria-label="Product catalog" data-js="catalog">
+
+          <div class="catalog__toolbar">
+            <div class="catalog__toolbar-left">
+              <h1 class="catalog__heading">
+                <span data-js="catalog-title">All products</span>
+              </h1>
+              <span class="catalog__count" data-js="catalog-count" aria-live="polite">
+              </span>
+            </div>
+
+            <div class="catalog__toolbar-right">
+              <button
+                class="catalog__filters-btn"
+                data-js="filters-open"
+                aria-expanded="false"
+                aria-controls="filters-panel"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Filters
+                <span class="catalog__filters-badge" data-js="active-filters-count" hidden>0</span>
+              </button>
+
+              <div class="catalog__sort">
+                <label class="sr-only" for="sort-select">Sort</label>
+                <div class="select-wrapper">
+                  <select
+                    class="catalog__sort-select"
+                    id="sort-select"
+                    data-js="sort-select"
+                  >
+                    <option value="popularity">By popularity</option>
+                    <option value="price-asc">Price: low to high</option>
+                    <option value="price-desc">Price: high to low</option>
+                    <option value="rating">By rating</option>
+                    <option value="new">New arrivals</option>
+                  </select>
+                  <svg class="select-wrapper__icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="catalog__view-toggle" role="group" aria-label="View mode">
+                <button
+                  class="catalog__view-btn catalog__view-btn--active"
+                  data-js="view-grid"
+                  aria-pressed="true"
+                  aria-label="Grid view"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                </button>
+                <button
+                  class="catalog__view-btn"
+                  data-js="view-list"
+                  aria-pressed="false"
+                  aria-label="List view"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M6 4h9M6 8h9M6 12h9M2 4h1M2 8h1M2 12h1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="catalog__active-filters"
+            data-js="active-filters"
+            role="group"
+            aria-label="Active filters"
+            hidden
+          >
+          </div>
+
+          <ul
+            class="catalog__grid"
+            data-js="product-grid"
+            role="list"
+            aria-live="polite"
+            aria-label="Product list"
+          >
+            <li class="catalog__empty" data-js="catalog-empty" hidden role="status">
+              <div class="catalog__empty-icon" aria-hidden="true">⬡</div>
+              <p class="catalog__empty-title">Nothing found</p>
+              <p class="catalog__empty-text">Try adjusting the filters</p>
+              <button class="btn btn--ghost btn--sm" data-js="filters-reset">
+                Reset filters
+              </button>
+            </li>
+          </ul>
+
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="container footer__inner">
+
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="./" class="footer__logo" aria-label="CyberGear home">
+            <span class="footer__logo-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </span>
+            <span class="footer__logo-text">Cyber<em>Gear</em></span>
+          </a>
+          <p class="footer__tagline">
+            Pro-grade peripherals for gamers, engineers and creators who demand the best.
+          </p>
+          <div class="footer__socials">
+            <a href="#" class="footer__social-link" aria-label="Twitter/X">𝕏</a>
+            <a href="#" class="footer__social-link" aria-label="Discord">⌨</a>
+            <a href="#" class="footer__social-link" aria-label="GitHub">⬡</a>
+            <a href="#" class="footer__social-link" aria-label="YouTube">▶</a>
+          </div>
+        </div>
+
+        <div class="footer__nav-col">
+          <div class="footer__nav-title">Shop</div>
+          <ul class="footer__nav-list">
+            <li><a href="#" class="footer__nav-link">All products</a></li>
+            <li><a href="#" class="footer__nav-link">Keyboards</a></li>
+            <li><a href="#" class="footer__nav-link">Mice</a></li>
+            <li><a href="#" class="footer__nav-link">Headsets</a></li>
+            <li><a href="#" class="footer__nav-link">New arrivals</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__nav-col">
+          <div class="footer__nav-title">Support</div>
+          <ul class="footer__nav-list">
+            <li><a href="#" class="footer__nav-link">Shipping & returns</a></li>
+            <li><a href="#" class="footer__nav-link">FAQ</a></li>
+            <li><a href="#" class="footer__nav-link">Contact us</a></li>
+            <li><a href="#" class="footer__nav-link">Warranty</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__nav-col">
+          <div class="footer__nav-title">About</div>
+          <ul class="footer__nav-list">
+            <li><a href="#" class="footer__nav-link">Our story</a></li>
+            <li><a href="#" class="footer__nav-link">Press kit</a></li>
+            <li><a href="#" class="footer__nav-link">Careers</a></li>
+            <li><a href="#" class="footer__nav-link">Blog</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__divider"></div>
+
+      <div class="footer__bottom">
+        <p class="footer__copy">
+          Demo project by <a href="https://github.com/shevdevworks" class="footer__copy-link" target="_blank" rel="noopener">ShevDevWorks</a> — Vanilla JS · HTML5 · CSS3
+        </p>
+        <div class="footer__badge">
+          <span class="footer__badge-dot" aria-hidden="true"></span>
+          All systems operational
+        </div>
+        <nav class="footer__legal" aria-label="Legal links">
+          <a href="#" class="footer__legal-link">Privacy policy</a>
+          <a href="#" class="footer__legal-link">Terms of service</a>
+          <a href="#" class="footer__legal-link">Cookies</a>
+        </nav>
+      </div>
+
+    </div>
+  </footer>
+
+  <div
+    class="overlay"
+    data-js="overlay"
+    aria-hidden="true"
+    hidden
+  ></div>
+
+  <aside
+    class="cart"
+    id="cart-drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cart-heading"
+    data-js="cart-drawer"
+    hidden
+  >
+    <div class="cart__inner">
+      <div class="cart__header">
+        <div class="cart__header-left">
+          <h2 class="cart__heading" id="cart-heading">Cart</h2>
+          <span class="cart__item-count" data-js="cart-total-count" aria-live="polite">
+          </span>
+        </div>
+        <button
+          class="cart__close-btn"
+          data-js="cart-close"
+          aria-label="Close cart"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 3l14 14M17 3 3 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="cart__empty" data-js="cart-empty" hidden>
+        <div class="cart__empty-icon" aria-hidden="true">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="31" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.3"/>
+            <path d="M12 16h8l5.33 17.33A2 2 0 0 0 27.25 35H46a2 2 0 0 0 1.92-1.43L52 20H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+          </svg>
+        </div>
+        <p class="cart__empty-title">Your cart is empty</p>
+        <p class="cart__empty-text">Add something from the catalog</p>
+        <button class="btn btn--ghost" data-js="cart-close">
+          Browse catalog
+        </button>
+      </div>
+
+      <ul
+        class="cart__list"
+        data-js="cart-list"
+        role="list"
+        aria-live="polite"
+        aria-label="Items in cart"
+        hidden
+      >
+      </ul>
+
+      <div class="cart__summary" data-js="cart-summary" hidden>
+        <div class="cart__promo">
+          <div class="cart__promo-input-wrap">
+            <label class="sr-only" for="promo-input">Promo code</label>
+            <input
+              class="cart__promo-input"
+              id="promo-input"
+              type="text"
+              placeholder="Promo code"
+              data-js="promo-input"
+              autocomplete="off"
+            />
+            <button class="btn btn--ghost btn--sm" data-js="promo-apply">
+              Apply
+            </button>
+          </div>
+          <p class="cart__promo-message" data-js="promo-message" hidden></p>
+        </div>
+
+        <div class="divider"></div>
+
+        <dl class="cart__totals">
+          <div class="cart__totals-row">
+            <dt class="cart__totals-label">Subtotal</dt>
+            <dd class="cart__totals-value" data-js="cart-subtotal">$0</dd>
+          </div>
+          <div class="cart__totals-row" data-js="cart-discount-row" hidden>
+            <dt class="cart__totals-label">Discount</dt>
+            <dd class="cart__totals-value cart__totals-value--discount" data-js="cart-discount">-$0</dd>
+          </div>
+          <div class="cart__totals-row cart__totals-row--total">
+            <dt class="cart__totals-label">Total</dt>
+            <dd class="cart__totals-value cart__totals-value--total" data-js="cart-total">$0</dd>
+          </div>
+        </dl>
+
+        <button class="btn btn--accent btn--lg btn--full" data-js="checkout-open">
+          Checkout
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div
+    class="checkout-modal"
+    id="checkout-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="checkout-heading"
+    data-js="checkout-modal"
+    hidden
+  >
+    <div class="checkout-modal__backdrop" data-js="checkout-close" aria-hidden="true"></div>
+    <div class="checkout-modal__panel">
+      <div class="checkout-modal__header">
+        <h2 class="checkout-modal__heading" id="checkout-heading">Checkout</h2>
+        <button class="cart__close-btn" data-js="checkout-close" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 3l14 14M17 3 3 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <form
+        class="checkout-form"
+        id="checkout-form"
+        data-js="checkout-form"
+        action="javascript:void(0)"
+        novalidate
+      >
+        <fieldset class="checkout-form__fieldset">
+          <legend class="checkout-form__legend">Contact details</legend>
+
+          <div class="checkout-form__row checkout-form__row--2col">
+            <div class="form-field" data-js="form-field">
+              <label class="form-field__label" for="checkout-name">
+                Name <span class="form-field__required" aria-hidden="true">*</span>
+              </label>
+              <input
+                class="form-field__input"
+                id="checkout-name"
+                type="text"
+                name="name"
+                autocomplete="given-name"
+                required
+                minlength="2"
+                data-js="checkout-name"
+                aria-describedby="checkout-name-error"
+              />
+              <span
+                class="form-field__error"
+                id="checkout-name-error"
+                role="alert"
+                data-js="field-error"
+                hidden
+              ></span>
+            </div>
+
+            <div class="form-field" data-js="form-field">
+              <label class="form-field__label" for="checkout-phone">
+                Phone <span class="form-field__required" aria-hidden="true">*</span>
+              </label>
+              <div class="phone-field">
+                <div class="phone-field__country" data-js="phone-country">
+                  <button
+                    type="button"
+                    class="phone-field__country-btn"
+                    data-js="phone-country-btn"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    aria-label="Country code, currently United States +1"
+                  >
+                    <img
+                      class="phone-field__country-flag"
+                      data-js="phone-country-flag"
+                      src="./assets/images/flags/us.svg"
+                      width="18" height="13"
+                      alt=""
+                    >
+                    <span data-js="phone-country-dial">+1</span>
+                    <svg class="phone-field__country-chevron" width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <ul class="phone-field__country-list" data-js="phone-country-list" role="listbox" aria-label="Country code" hidden>
+                    <li class="phone-field__country-option" role="option" aria-selected="true"  data-js="phone-country-option" data-dial="+1"><img src="./assets/images/flags/us.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">United States</span><span class="phone-field__country-option-dial">+1</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+1"><img src="./assets/images/flags/ca.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Canada</span><span class="phone-field__country-option-dial">+1</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+44"><img src="./assets/images/flags/gb.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">United Kingdom</span><span class="phone-field__country-option-dial">+44</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+49"><img src="./assets/images/flags/de.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Germany</span><span class="phone-field__country-option-dial">+49</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+33"><img src="./assets/images/flags/fr.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">France</span><span class="phone-field__country-option-dial">+33</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+34"><img src="./assets/images/flags/es.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Spain</span><span class="phone-field__country-option-dial">+34</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+39"><img src="./assets/images/flags/it.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Italy</span><span class="phone-field__country-option-dial">+39</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+31"><img src="./assets/images/flags/nl.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Netherlands</span><span class="phone-field__country-option-dial">+31</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+48"><img src="./assets/images/flags/pl.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Poland</span><span class="phone-field__country-option-dial">+48</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+380"><img src="./assets/images/flags/ua.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Ukraine</span><span class="phone-field__country-option-dial">+380</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+61"><img src="./assets/images/flags/au.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Australia</span><span class="phone-field__country-option-dial">+61</span></li>
+                    <li class="phone-field__country-option" role="option" aria-selected="false" data-js="phone-country-option" data-dial="+81"><img src="./assets/images/flags/jp.svg" width="18" height="13" alt=""><span class="phone-field__country-option-name">Japan</span><span class="phone-field__country-option-dial">+81</span></li>
+                  </ul>
+                </div>
+                <input
+                  class="form-field__input phone-field__input"
+                  id="checkout-phone"
+                  type="tel"
+                  name="phone"
+                  autocomplete="tel"
+                  required
+                  placeholder="(XXX) XXX-XXXX"
+                  data-js="checkout-phone"
+                  aria-describedby="checkout-phone-error"
+                />
+              </div>
+              <span
+                class="form-field__error"
+                id="checkout-phone-error"
+                role="alert"
+                data-js="field-error"
+                hidden
+              ></span>
+            </div>
+          </div>
+
+          <div class="form-field" data-js="form-field">
+            <label class="form-field__label" for="checkout-email">
+              Email <span class="form-field__required" aria-hidden="true">*</span>
+            </label>
+            <input
+              class="form-field__input"
+              id="checkout-email"
+              type="email"
+              name="email"
+              autocomplete="email"
+              required
+              data-js="checkout-email"
+              aria-describedby="checkout-email-error"
+            />
+            <span
+              class="form-field__error"
+              id="checkout-email-error"
+              role="alert"
+              data-js="field-error"
+              hidden
+            ></span>
+          </div>
+        </fieldset>
+
+        <fieldset class="checkout-form__fieldset">
+          <legend class="checkout-form__legend">Shipping</legend>
+          <div class="delivery-options" role="group" aria-label="Delivery type">
+            <label class="delivery-option" for="delivery-courier">
+              <input
+                class="delivery-option__input"
+                type="radio"
+                id="delivery-courier"
+                name="delivery"
+                value="courier"
+                checked
+                data-js="delivery-type"
+              />
+              <span class="delivery-option__body">
+                <span class="delivery-option__title">Courier</span>
+                <span class="delivery-option__price">from $5</span>
+              </span>
+            </label>
+            <label class="delivery-option" for="delivery-pickup">
+              <input
+                class="delivery-option__input"
+                type="radio"
+                id="delivery-pickup"
+                name="delivery"
+                value="pickup"
+                data-js="delivery-type"
+              />
+              <span class="delivery-option__body">
+                <span class="delivery-option__title">Pickup</span>
+                <span class="delivery-option__price">Free</span>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-field" data-js="form-field" id="address-field-wrap">
+            <label class="form-field__label" for="checkout-address">
+              Delivery address <span class="form-field__required" aria-hidden="true">*</span>
+            </label>
+            <textarea
+              class="form-field__input form-field__input--textarea"
+              id="checkout-address"
+              name="address"
+              rows="2"
+              autocomplete="street-address"
+              data-js="checkout-address"
+              aria-describedby="checkout-address-error"
+            ></textarea>
+            <span
+              class="form-field__error"
+              id="checkout-address-error"
+              role="alert"
+              data-js="field-error"
+              hidden
+            ></span>
+          </div>
+        </fieldset>
+
+        <div class="checkout-form__footer">
+          <div class="checkout-form__total">
+            <span>Total:</span>
+            <strong data-js="checkout-total">$0</strong>
+          </div>
+          <button type="submit" class="btn btn--accent btn--lg btn--full" data-js="checkout-submit">
+            Confirm order
+          </button>
+        </div>
+
+      </form>
+
+      <div class="checkout-success" data-js="checkout-success" hidden>
+        <div class="checkout-success__icon" aria-hidden="true">✓</div>
+        <h3 class="checkout-success__title">Order placed!</h3>
+        <p class="checkout-success__text">
+          We'll contact you within an hour to confirm your order.
+        </p>
+        <p class="checkout-success__number">
+          Order number: <strong data-js="order-number">#CG-0001</strong>
+        </p>
+        <button class="btn btn--ghost" data-js="checkout-close">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div
+    class="toast-container"
+    data-js="toast-container"
+    role="status"
+    aria-live="polite"
+    aria-label="Notifications"
+  ></div>
+
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

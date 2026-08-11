@@ -1,0 +1,608 @@
+/* ==========================================================================
+   CyberGear — Checkout Modal Component
+   Checkout modal window: form, delivery, success screen.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CHECKOUT MODAL — wrapper
+-------------------------------------------------------------------------- */
+
+.checkout-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+
+  animation: fadeIn var(--duration-normal) var(--ease-out-expo) both;
+}
+
+/* Translucent backdrop */
+.checkout-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 8, 10, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer; /* Click outside closes the modal */
+}
+
+/* Modal panel */
+.checkout-modal__panel {
+  position: relative; /* Above the backdrop */
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100dvh - var(--space-8));
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-2xl);
+  box-shadow:
+    0 0 0 1px var(--color-border-default),
+    0 24px 80px rgba(0, 0, 0, 0.7),
+    0 0 60px rgba(255, 165, 40, 0.04);
+
+  animation: modalSlideIn var(--duration-drawer) var(--ease-out-expo) both;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   CHECKOUT MODAL HEADER
+-------------------------------------------------------------------------- */
+
+.checkout-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.checkout-modal__heading {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* --------------------------------------------------------------------------
+   CHECKOUT FORM — scrollable form body
+-------------------------------------------------------------------------- */
+
+.checkout-form {
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Fieldset — group of fields */
+.checkout-form__fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.checkout-form__legend {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+  width: 100%; /* Legend does not stretch to full width by default */
+  float: left;  /* Technique for correct legend rendering across browsers */
+}
+
+/* Two-column row */
+.checkout-form__row--2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* Form footer */
+.checkout-form__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.checkout-form__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.checkout-form__total strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   FORM FIELD — field with label and error
+-------------------------------------------------------------------------- */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.form-field__required {
+  color: var(--color-accent);
+}
+
+/* Base input */
+.form-field__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+
+  transition:
+    border-color var(--duration-fast) var(--ease-out-expo),
+    box-shadow   var(--duration-fast) var(--ease-out-expo),
+    background   var(--duration-fast) var(--ease-out-expo);
+}
+
+.form-field__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-field__input:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+}
+
+.form-field__input:focus-visible {
+  outline: none;
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent-dim);
+  box-shadow: 0 0 0 3px var(--color-accent-ghost);
+}
+
+/* Textarea */
+.form-field__input--textarea {
+  resize: none;
+  line-height: var(--leading-normal);
+  min-height: 72px;
+}
+
+/*
+  "Country code + number" group — select and input side by side in one row.
+  We don't touch .form-field__input itself, only add a flex wrapper
+  and a compact country-code selector to the left of the number.
+*/
+.phone-field {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.phone-field__country {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.phone-field__country-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 92px;
+  height: 100%;
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+
+  transition:
+    border-color var(--duration-fast) var(--ease-out-expo),
+    background   var(--duration-fast) var(--ease-out-expo);
+}
+
+.phone-field__country-btn:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+}
+
+.phone-field__country-btn:focus-visible {
+  outline: none;
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent-dim);
+  box-shadow: 0 0 0 3px var(--color-accent-ghost);
+}
+
+.phone-field__country-flag {
+  width: 18px;
+  height: 13px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.phone-field__country-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease-out-expo);
+}
+
+.phone-field__country-btn[aria-expanded="true"] .phone-field__country-chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown list of countries, each with a real flag icon (a native
+   <select><option> can't render images, hence this custom listbox) */
+.phone-field__country-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: var(--z-dropdown);
+  width: 200px;
+  max-height: 216px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2);
+
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--color-border-default);
+
+  animation: slideInUp var(--duration-fast) var(--ease-out-expo) both;
+}
+
+.phone-field__country-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out-expo), color var(--duration-fast) var(--ease-out-expo);
+}
+
+.phone-field__country-option:hover {
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+.phone-field__country-option[aria-selected="true"] {
+  color: var(--color-text-primary);
+  background: var(--color-accent-ghost);
+}
+
+.phone-field__country-option:focus-visible {
+  outline: none;
+  color: var(--color-text-primary);
+  background: var(--color-bg-surface);
+  box-shadow: inset 0 0 0 2px var(--color-accent-dim);
+}
+
+.phone-field__country-option img {
+  width: 18px;
+  height: 13px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.phone-field__country-option-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phone-field__country-option-dial {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.phone-field__input {
+  /* min-width: 0 is required — without it the flex item does not shrink
+     smaller than its content and the selector might overflow the panel */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/*
+  Error state: JS adds .form-field--error to the parent.
+  This is more convenient than toggling a class on the input — one class
+  controls the border, the icon, and the message.
+*/
+.form-field--error .form-field__input {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-ghost);
+}
+
+.form-field--error .form-field__input:focus-visible {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-ghost);
+}
+
+/* Valid state */
+.form-field--valid .form-field__input {
+  border-color: var(--color-success);
+}
+
+/* Error message */
+.form-field__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  animation: slideInUp var(--duration-fast) var(--ease-out-expo) both;
+}
+
+/* --------------------------------------------------------------------------
+   DELIVERY OPTIONS — custom radio buttons for shipping
+   Same principles as checkboxes, but look like "cards".
+-------------------------------------------------------------------------- */
+
+.delivery-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.delivery-option {
+  cursor: pointer;
+  display: block;
+}
+
+/* Hide the native radio */
+.delivery-option__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Option card */
+.delivery-option__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+
+  background: var(--color-bg-base);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+
+  transition:
+    border-color var(--duration-fast) var(--ease-out-expo),
+    background   var(--duration-fast) var(--ease-out-expo),
+    box-shadow   var(--duration-fast) var(--ease-out-expo);
+}
+
+.delivery-option:hover .delivery-option__body {
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-elevated);
+}
+
+/* Checked state */
+.delivery-option__input:checked + .delivery-option__body {
+  border-color: var(--color-accent);
+  background: var(--color-accent-ghost);
+  box-shadow: var(--shadow-glow-amber);
+}
+
+/* Focus */
+.delivery-option__input:focus-visible + .delivery-option__body {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.delivery-option__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.delivery-option__price {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.delivery-option__input:checked + .delivery-option__body .delivery-option__price {
+  color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   CHECKOUT SUCCESS — order confirmation screen
+-------------------------------------------------------------------------- */
+
+.checkout-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+
+  animation: slideInUp var(--duration-normal) var(--ease-out-expo) both;
+}
+
+.checkout-success__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+
+  font-size: 2rem;
+  color: var(--color-success);
+  background: var(--color-success-ghost);
+  border: 1.5px solid rgba(45, 212, 160, 0.3);
+
+  box-shadow:
+    0 0 0 8px rgba(45, 212, 160, 0.06),
+    0 0 32px rgba(45, 212, 160, 0.15);
+
+  /* Icon appearance animation */
+  animation: successPop var(--duration-slow) var(--ease-spring) 0.1s both;
+}
+
+@keyframes successPop {
+  0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.checkout-success__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.checkout-success__text {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  max-width: 320px;
+}
+
+.checkout-success__number {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.checkout-success__number strong {
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+  font-size: var(--text-base);
+}
+
+/* --------------------------------------------------------------------------
+   SUBMIT BUTTON — loading state
+   The class/spinner is added by setSubmitLoading() in checkout.js upon form
+   submission. Previously there were no styles here at all — .btn__spinner existed
+   only in the markup (empty span), nothing was spinning.
+-------------------------------------------------------------------------- */
+
+.btn--loading {
+  pointer-events: none;
+  /*
+    We intentionally don't add opacity here: while loading, the button already
+    receives the native disabled attribute, and .btn:disabled (cart.css)
+    has higher specificity (class + pseudo-class vs. a single class) —
+    it will already apply opacity: 0.4, our opacity here simply wouldn't work.
+  */
+}
+
+.btn__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  /* currentColor = button text color (var(--color-text-inverse) for .btn--accent) —
+     so the "running" segment of the spinner always matches the button text color */
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVENESS
+-------------------------------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .checkout-modal {
+    align-items: flex-end; /* On mobile — bottom sheet */
+    padding: 0;
+  }
+
+  .checkout-modal__panel {
+    max-width: 100%;
+    max-height: 95dvh;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    animation: mobileSheetIn var(--duration-drawer) var(--ease-out-expo) both;
+  }
+
+  @keyframes mobileSheetIn {
+    from { transform: translateY(100%); opacity: 0.5; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+
+  .checkout-form__row--2col {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-options {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-form {
+    padding: var(--space-4);
+  }
+
+  .checkout-modal__header {
+    padding: var(--space-4);
+  }
+}

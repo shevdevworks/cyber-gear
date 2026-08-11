@@ -1,0 +1,651 @@
+/* ==========================================================================
+   CyberGear — Cart Drawer Component
+   Slide-out cart panel, inner elements, totals, promo code.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   OVERLAY — darkens the page behind the drawer
+-------------------------------------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0; /* Shorthand: top/right/bottom/left = 0 */
+  z-index: var(--z-overlay);
+
+  background: rgba(7, 8, 10, 0.75);
+  /*
+    backdrop-filter on the overlay creates a "frosted glass" effect behind the drawer.
+    The page blurs beautifully rather than just darkening.
+  */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  /* Overlay entrance animation */
+  animation: fadeIn var(--duration-normal) var(--ease-out-expo) both;
+}
+
+/* The hidden state via the hidden attribute is set in base.css via [hidden] { display: none } */
+
+/* --------------------------------------------------------------------------
+   CART DRAWER — the main panel
+-------------------------------------------------------------------------- */
+
+.cart {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-drawer);
+
+  /*
+    Drawer width: clamp(minimum, preferred, maximum).
+    On mobile — almost full screen (92vw), on desktop — fixed 420px.
+  */
+  width: clamp(320px, 92vw, 420px);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Internal scroll only in .cart__list */
+
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-drawer);
+
+  /*
+    Slide-in animation from the right.
+    slideInRight is defined in base.css.
+    ease-out-expo gives a "springy" deceleration at the end — a sense of physics and quality.
+  */
+  animation: slideInRight var(--duration-drawer) var(--ease-out-expo) both;
+}
+
+/* --------------------------------------------------------------------------
+   CART INNER — flex container for the vertical layout
+-------------------------------------------------------------------------- */
+
+.cart__inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   CART HEADER
+-------------------------------------------------------------------------- */
+
+.cart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  flex-shrink: 0; /* Header doesn't shrink when the list overflows */
+
+  /* Subtle bottom border */
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.cart__header-left {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.cart__heading {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+.cart__item-count {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.cart__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  transition:
+    color      var(--duration-fast) var(--ease-out-expo),
+    background var(--duration-fast) var(--ease-out-expo);
+}
+
+.cart__close-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+}
+
+/* --------------------------------------------------------------------------
+   CART EMPTY STATE
+-------------------------------------------------------------------------- */
+
+.cart__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex: 1;
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.cart__empty-icon {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  margin-bottom: var(--space-2);
+}
+
+.cart__empty-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.cart__empty-text {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+/* --------------------------------------------------------------------------
+   CART LIST — scrollable product list
+-------------------------------------------------------------------------- */
+
+.cart__list {
+  flex: 1; /* Fills the space between header and summary */
+  overflow-y: auto; /* Vertical scroll only */
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  /* Scrollbar is already styled in base.css */
+}
+
+/* --------------------------------------------------------------------------
+   CART ITEM — a single product in the cart
+-------------------------------------------------------------------------- */
+
+.cart-item {
+  display: grid;
+  /*
+    Grid: [image 72px] [content 1fr] [price+remove auto]
+  */
+  grid-template-columns: 72px 1fr auto;
+  align-items: start;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+
+  /* Divider between items */
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  /* New item entrance animation */
+  animation: slideInUp var(--duration-normal) var(--ease-out-expo) both;
+
+  transition: opacity var(--duration-fast) var(--ease-out-expo);
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+/* "Removing" state — JS adds this class before removing the element from the DOM */
+.cart-item--removing {
+  opacity: 0;
+  transform: translateX(40px);
+  transition:
+    opacity   var(--duration-fast) var(--ease-in-expo),
+    transform var(--duration-fast) var(--ease-in-expo);
+}
+
+/* Product image */
+.cart-item__image {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Product info */
+.cart-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0; /* Prevents text overflow */
+}
+
+.cart-item__name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--leading-snug);
+
+  /* Single-line truncated text */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cart-item__variant {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* Quantity controls */
+.cart-item__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin-top: var(--space-2);
+
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden; /* Clips the button corners */
+}
+
+.cart-item__qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+
+  transition:
+    color      var(--duration-fast) var(--ease-out-expo),
+    background var(--duration-fast) var(--ease-out-expo);
+}
+
+.cart-item__qty-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+}
+
+.cart-item__qty-btn:active {
+  background: var(--color-bg-overlay);
+}
+
+/* The "-" button is disabled when qty = 1 */
+.cart-item__qty-btn:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.cart-item__qty {
+  min-width: 28px;
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums; /* Equal-width digits — no jitter */
+  color: var(--color-text-primary);
+  border-inline: 1px solid var(--color-border-default);
+  padding-block: 4px;
+}
+
+/* Right column: price + remove */
+.cart-item__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.cart-item__price {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.cart-item__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-disabled);
+  border-radius: var(--radius-sm);
+
+  transition:
+    color      var(--duration-fast) var(--ease-out-expo),
+    background var(--duration-fast) var(--ease-out-expo);
+}
+
+.cart-item__remove:hover {
+  color: var(--color-error);
+  background: var(--color-error-ghost);
+}
+
+/* --------------------------------------------------------------------------
+   CART SUMMARY — totals, promo code, checkout button
+-------------------------------------------------------------------------- */
+
+.cart__summary {
+  flex-shrink: 0;
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  /* Separated from the list by a decorative line */
+  border-top: 1px solid var(--color-border-subtle);
+
+  /*
+    A subtle glow at the top — emphasizes the "importance" of the totals area.
+    box-shadow on border-top doesn't work, so we use an outline-like approach
+    or simply add an extra shadow to the block itself.
+  */
+  box-shadow: 0 -8px 24px rgba(7, 8, 10, 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   PROMO CODE — promo code input
+-------------------------------------------------------------------------- */
+
+.cart__promo-input-wrap {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.cart__promo-input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  min-width: 0;
+
+  transition:
+    border-color var(--duration-fast) var(--ease-out-expo),
+    box-shadow   var(--duration-fast) var(--ease-out-expo);
+}
+
+.cart__promo-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.cart__promo-input:focus-visible {
+  outline: none;
+  border-color: var(--color-accent-dim);
+  box-shadow: 0 0 0 3px var(--color-accent-ghost);
+}
+
+.cart__promo-message {
+  font-size: var(--text-xs);
+  padding-top: var(--space-1);
+}
+
+.cart__promo-message--success {
+  color: var(--color-success);
+}
+
+.cart__promo-message--error {
+  color: var(--color-error);
+}
+
+/* --------------------------------------------------------------------------
+   TOTALS — totals rows
+-------------------------------------------------------------------------- */
+
+.cart__totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cart__totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.cart__totals-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.cart__totals-value {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+/* Discount row */
+.cart__totals-value--discount {
+  color: var(--color-success);
+}
+
+/* "Total" row — larger */
+.cart__totals-row--total .cart__totals-label {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.cart__totals-value--total {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL BUTTONS — used in cart and throughout the project
+-------------------------------------------------------------------------- */
+
+/* Base button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition:
+    background  var(--duration-fast) var(--ease-out-expo),
+    color       var(--duration-fast) var(--ease-out-expo),
+    box-shadow  var(--duration-fast) var(--ease-out-expo),
+    transform   var(--duration-fast) var(--ease-spring),
+    border-color var(--duration-fast) var(--ease-out-expo);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Accent button — primary CTA */
+.btn--accent {
+  color: var(--color-text-inverse);
+  background: var(--color-accent);
+  box-shadow: var(--shadow-btn-accent);
+}
+
+.btn--accent:hover:not(:disabled) {
+  background: var(--color-accent-bright);
+  box-shadow: var(--shadow-btn-accent-hover);
+}
+
+/* Ghost button — secondary actions */
+.btn--ghost {
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border-default);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+}
+
+/* Sizes */
+.btn--sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+}
+
+.btn--lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--text-base);
+  border-radius: var(--radius-lg);
+}
+
+/* Full width */
+.btn--full {
+  width: 100%;
+}
+
+/*
+  .toast styles are no longer here — they previously duplicated (and conflicted with)
+  the separate css/components/toast.css: that file has a different, more complete set
+  of colors (.toast--info) and the .toast--visible class that app.js (showToast)
+  actually targets. The toast.css file existed from the start, but was not included
+  in index.html — now it is, so duplicating it here is no longer necessary.
+*/
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+-------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .cart {
+    width: 100vw; /* On mobile the drawer takes the full screen */
+  }
+
+  .cart__header,
+  .cart__list,
+  .cart__summary {
+    padding-inline: var(--space-4);
+  }
+
+  .cart-item {
+    grid-template-columns: 60px 1fr auto;
+    gap: var(--space-2);
+  }
+
+  .cart-item__image {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   PRODUCT ROW ANIMATIONS — added for cart.js
+-------------------------------------------------------------------------- */
+
+/* Bump-up: quantity increased — the row "jumps" up */
+@keyframes bumpUp {
+  0%   { transform: translateY(0);   }
+  40%  { transform: translateY(-5px);}
+  100% { transform: translateY(0);   }
+}
+
+/* Bump-down: quantity decreased — the row "settles" */
+@keyframes bumpDown {
+  0%   { transform: translateY(0);  }
+  40%  { transform: translateY(4px);}
+  100% { transform: translateY(0);  }
+}
+
+.cart-item--bump-up   { animation: bumpUp   300ms var(--ease-spring) both; }
+.cart-item--bump-down { animation: bumpDown 300ms var(--ease-spring) both; }
+
+/* Removal: slides right and fades */
+.cart-item--removing {
+  opacity: 0;
+  transform: translateX(32px);
+  transition:
+    opacity   var(--duration-fast) var(--ease-in-expo),
+    transform var(--duration-fast) var(--ease-in-expo);
+  pointer-events: none;
+}
+
+/* Flash the total price when it updates */
+@keyframes flashTotal {
+  0%   { color: var(--color-text-primary); }
+  40%  { color: var(--color-accent-bright); }
+  100% { color: var(--color-text-primary); }
+}
+
+.cart__totals-value--flash {
+  animation: flashTotal 500ms var(--ease-out-expo) both;
+}
+
+/* Promo code row in the totals */
+.cart__totals-row--promo {
+  animation: slideInUp var(--duration-normal) var(--ease-out-expo) both;
+}
+
+/* --------------------------------------------------------------------------
+   PROMO CODE — additional states
+-------------------------------------------------------------------------- */
+
+/* Applied promo code — green border */
+.cart__promo-input--applied {
+  border-color: var(--color-success) !important;
+  box-shadow: 0 0 0 3px var(--color-success-ghost) !important;
+  color: var(--color-text-muted);
+}
+
+/* Shake animation on error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0);    }
+  15%      { transform: translateX(-6px); }
+  30%      { transform: translateX(5px);  }
+  45%      { transform: translateX(-4px); }
+  60%      { transform: translateX(3px);  }
+  75%      { transform: translateX(-2px); }
+}
+
+.cart__promo-input--shake {
+  animation: shake 400ms var(--ease-out-expo) both;
+}
+
+/* Unit price in the row (when quantity > 1) */
+.cart-item__unit-price {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* Strikethrough old price in the cart row */
+.cart-item__old-price {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
