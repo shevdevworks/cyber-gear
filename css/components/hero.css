@@ -237,7 +237,25 @@
 }
 
 @media (max-width: 768px) {
+  .hero { padding: var(--space-6) 0; }
+  .hero::before { width: 320px; right: -120px; }
   .hero__visual { display: none; }
-  .hero__stats { gap: var(--space-4); }
-  .hero__title { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .hero__stats { gap: var(--space-6); margin-top: var(--space-5); }
+  /* Each line of the title is ~14× the font size wide in Syne 800 —
+     derive the size from the available width so both lines never wrap */
+  .hero__title { font-size: min(2.25rem, calc((100vw - 2 * var(--container-pad)) / 14.4)); }
+  .hero__sub { font-size: 0.9375rem; max-width: 34ch; }
+}
+
+@media (max-width: 480px) {
+  .hero__label {
+    max-width: 100%;
+    font-size: 0.625rem;
+    letter-spacing: var(--tracking-wide);
+    margin-bottom: var(--space-3);
+  }
+
+  .hero__label-dot { flex-shrink: 0; }
+
+  .hero__stat-value { font-size: var(--text-md); }
 }

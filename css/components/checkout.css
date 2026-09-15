@@ -47,9 +47,13 @@
   box-shadow:
     0 0 0 1px var(--color-border-default),
     0 24px 80px rgba(0, 0, 0, 0.7),
-    0 0 60px rgba(255, 165, 40, 0.04);
+    0 0 60px rgba(124, 58, 237, 0.08);
 
   animation: modalSlideIn var(--duration-drawer) var(--ease-out-expo) both;
+}
+
+.checkout-modal__panel:focus {
+  outline: none;
 }
 
 @keyframes modalSlideIn {
@@ -91,6 +95,7 @@
 
 .checkout-form {
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
@@ -572,6 +577,12 @@
    RESPONSIVENESS
 -------------------------------------------------------------------------- */
 
+/* Keyframes can't be nested in @media reliably — keep them top-level */
+@keyframes mobileSheetIn {
+  from { transform: translateY(100%); opacity: 0.5; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
 @media (max-width: 560px) {
   .checkout-modal {
     align-items: flex-end; /* On mobile — bottom sheet */
@@ -585,24 +596,48 @@
     animation: mobileSheetIn var(--duration-drawer) var(--ease-out-expo) both;
   }
 
-  @keyframes mobileSheetIn {
-    from { transform: translateY(100%); opacity: 0.5; }
-    to   { transform: translateY(0);   opacity: 1; }
-  }
-
   .checkout-form__row--2col {
-    grid-template-columns: 1fr;
-  }
-
-  .delivery-options {
     grid-template-columns: 1fr;
   }
 
   .checkout-form {
     padding: var(--space-4);
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    gap: var(--space-5);
   }
 
   .checkout-modal__header {
-    padding: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Grab-handle hint for the bottom sheet */
+  .checkout-modal__header {
+    position: relative;
+  }
+
+  .checkout-modal__header::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--color-border-strong);
+    transform: translateX(-50%);
+  }
+
+  /* < 16px makes iOS Safari zoom the page on focus */
+  .form-field__input,
+  .phone-field__country-btn {
+    font-size: 16px;
+  }
+
+  .phone-field__country-btn {
+    width: 100px;
+  }
+
+  .checkout-success {
+    padding: var(--space-10) var(--space-5) calc(var(--space-10) + env(safe-area-inset-bottom));
   }
 }

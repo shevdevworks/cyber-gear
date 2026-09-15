@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="CyberGear — custom peripherals for those who don't compromise" />
+
+  <meta name="theme-color" content="#07070F" />
 
   <title>CyberGear — Custom Peripherals</title>
 
@@ -12,7 +14,7 @@
   <meta property="og:site_name" content="CyberGear" />
   <meta property="og:title" content="CyberGear — Custom Peripherals" />
   <meta property="og:description" content="Pro-grade keyboards, mice and headsets — handpicked for gamers, engineers and creators who demand the best." />
-  <meta property="og:image" content="assets/images/og-cover.png" />
+  <meta property="og:image" content="https://shevdevworks.github.io/cyber-gear/assets/images/og-cover.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://shevdevworks.github.io/cyber-gear/" />
@@ -21,7 +23,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CyberGear — Custom Peripherals" />
   <meta name="twitter:description" content="Pro-grade keyboards, mice and headsets — handpicked for gamers, engineers and creators who demand the best." />
-  <meta name="twitter:image" content="assets/images/og-cover.png" />
+  <meta name="twitter:image" content="https://shevdevworks.github.io/cyber-gear/assets/images/og-cover.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -437,7 +439,7 @@
             <button class="btn btn--ghost btn--sm" data-js="filters-reset">
               Reset all
             </button>
-            <button class="btn btn--accent btn--sm" data-js="filters-apply" hidden>
+            <button class="btn btn--accent btn--sm filters__apply" data-js="filters-apply">
               Show
               <span data-js="filters-apply-count">12</span>
               products
@@ -450,9 +452,9 @@
 
           <div class="catalog__toolbar">
             <div class="catalog__toolbar-left">
-              <h1 class="catalog__heading">
+              <h2 class="catalog__heading">
                 <span data-js="catalog-title">All products</span>
-              </h1>
+              </h2>
               <span class="catalog__count" data-js="catalog-count" aria-live="polite">
               </span>
             </div>
@@ -479,11 +481,11 @@
                     id="sort-select"
                     data-js="sort-select"
                   >
-                    <option value="popularity">By popularity</option>
-                    <option value="price-asc">Price: low to high</option>
-                    <option value="price-desc">Price: high to low</option>
-                    <option value="rating">By rating</option>
-                    <option value="new">New arrivals</option>
+                    <option value="popularity">Popular</option>
+                    <option value="price-asc">Price: low–high</option>
+                    <option value="price-desc">Price: high–low</option>
+                    <option value="rating">Top rated</option>
+                    <option value="new">Newest</option>
                   </select>
                   <svg class="select-wrapper__icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -532,7 +534,6 @@
             class="catalog__grid"
             data-js="product-grid"
             role="list"
-            aria-live="polite"
             aria-label="Product list"
           >
             <li class="catalog__empty" data-js="catalog-empty" hidden role="status">
@@ -578,11 +579,11 @@
         <div class="footer__nav-col">
           <div class="footer__nav-title">Shop</div>
           <ul class="footer__nav-list">
-            <li><a href="#" class="footer__nav-link">All products</a></li>
-            <li><a href="#" class="footer__nav-link">Keyboards</a></li>
-            <li><a href="#" class="footer__nav-link">Mice</a></li>
-            <li><a href="#" class="footer__nav-link">Headsets</a></li>
-            <li><a href="#" class="footer__nav-link">New arrivals</a></li>
+            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="all">All products</a></li>
+            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="keyboards">Keyboards</a></li>
+            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="mice">Mice</a></li>
+            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="headsets">Headsets</a></li>
+            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="all" data-sort="new">New arrivals</a></li>
           </ul>
         </div>
 

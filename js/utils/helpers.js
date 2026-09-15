@@ -16,11 +16,13 @@
  */
 export function formatPrice(amountInMinorUnits, currency = 'USD', locale = 'en-US') {
   const amount = amountInMinorUnits / 100;
+  // Whole dollars stay short ("$189"), otherwise always two decimals ("$25.80", not "$25.8")
+  const decimals = Number.isInteger(amount) ? 0 : 2;
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   }).format(amount);
 }
 

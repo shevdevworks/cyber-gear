@@ -38,8 +38,12 @@
     transform    var(--duration-normal) var(--ease-out-expo),
     box-shadow   var(--duration-normal) var(--ease-out-expo);
 
-  /* Initial state for entrance animation (controlled by JS) */
-  animation: cardAppear var(--duration-slow) var(--ease-out-expo) both;
+  /*
+    Entrance animation. fill-mode must be "backwards", not "both": with
+    "forwards" the finished animation keeps holding transform, which silently
+    overrides the :hover lift below — the card never moved on hover.
+  */
+  animation: cardAppear var(--duration-slow) var(--ease-out-expo) backwards;
 }
 
 /*
@@ -66,9 +70,11 @@
    HOVER STATE — card "lifts" with a purple glow
 -------------------------------------------------------------------------- */
 
-.product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-card-hover);
+@media (hover: hover) {
+  .product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-card-hover);
+  }
 }
 
 /* Cyan bottom line on hover — like an RGB accent */
@@ -93,9 +99,11 @@
     transform var(--duration-normal) var(--ease-out-expo);
 }
 
-.product-card:hover::after {
-  opacity: 1;
-  transform: scaleX(1);
+@media (hover: hover) {
+  .product-card:hover::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -130,8 +138,10 @@
   transition: transform var(--duration-slow) var(--ease-out-expo);
 }
 
-.product-card:hover .product-card__image {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .product-card:hover .product-card__image {
+    transform: scale(1.05);
+  }
 }
 
 /* Placeholder while the image hasn't loaded yet */
@@ -242,10 +252,20 @@
     background var(--duration-fast) var(--ease-out-expo);
 }
 
-.product-card:hover .product-card__wishlist {
+.product-card:hover .product-card__wishlist,
+.product-card:focus-within .product-card__wishlist {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
+}
+
+/* Touch screens have no hover — the button would be unreachable */
+@media (hover: none) {
+  .product-card__wishlist {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+  }
 }
 
 .product-card__wishlist:hover {
@@ -455,58 +475,131 @@
    When JS adds catalog__grid--list, cards rearrange into rows.
 -------------------------------------------------------------------------- */
 
-.catalog__grid--list .product-card {
-  flex-direction: row;
-  /* Fixed height for list uniformity */
-  min-height: 140px;
-}
+@media (min-width: 641px) {
+  .catalog__grid--list .product-card {
+    flex-direction: row;
+    min-height: 160px;
+  }
 
-.catalog__grid--list .product-card__media {
-  /* In list mode the media is a square block on the left */
-  width: 180px;
-  flex-shrink: 0;
-  aspect-ratio: unset;
-  border-bottom: none;
-  border-right: 1px solid var(--color-border-subtle);
-}
+  .catalog__grid--list .product-card:hover {
+    transform: translateY(-3px);
+  }
 
-.catalog__grid--list .product-card__body {
-  flex-direction: row;
-  align-items: center;
-  flex: 1;
-  padding: var(--space-4) var(--space-5);
-  gap: var(--space-5);
-}
+  .catalog__grid--list .product-card__media {
+    width: clamp(160px, 22%, 220px);
+    flex-shrink: 0;
+    aspect-ratio: auto;
+    border-bottom: none;
+    border-right: 1px solid var(--color-border-subtle);
+  }
 
-.catalog__grid--list .product-card__footer {
-  padding: 0;
-  margin-top: 0;
-  flex-direction: column;
-  align-items: flex-end;
-  flex-shrink: 0;
+  /* Take the image out of flow so tall product shots don't stretch the row */
+  .catalog__grid--list .product-card__image {
+    position: absolute;
+    inset: 0;
+  }
+
+  .catalog__grid--list .product-card__body {
+    justify-content: center;
+    min-width: 0;
+    padding: var(--space-4) var(--space-5);
+    gap: var(--space-2);
+  }
+
+  .catalog__grid--list .product-card__specs {
+    margin-top: var(--space-1);
+  }
+
+  .catalog__grid--list .product-card__footer {
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: var(--space-4);
+    margin-top: 0;
+    padding: var(--space-4) var(--space-5);
+    text-align: right;
+  }
+
+  .catalog__grid--list .product-card__price-wrap {
+    align-items: flex-end;
+  }
 }
 
 /* --------------------------------------------------------------------------
    RESPONSIVE
 -------------------------------------------------------------------------- */
 
-@media (max-width: 480px) {
-  .product-card__body {
-    padding: var(--space-3);
-    gap: var(--space-2);
+/* Phones: compact card for the 2-column grid */
+@media (max-width: 640px) {
+  .product-card {
+    border-radius: var(--radius-lg);
   }
 
-  .product-card__footer {
+  .product-card__media {
+    aspect-ratio: 1 / 1;
+  }
+
+  .product-card__image {
+    padding: var(--space-2);
+  }
+
+  .product-card__badges {
+    top: var(--space-2);
+    left: var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .badge {
+    padding: 2px 6px;
+    font-size: 0.5625rem;
+  }
+
+  .product-card__wishlist {
+    top: var(--space-2);
+    right: var(--space-2);
+    width: 32px;
+    height: 32px;
+  }
+
+  .product-card__body {
     padding: var(--space-3);
-    padding-top: 0;
+    gap: var(--space-1);
+  }
+
+  .product-card__brand {
+    font-size: 0.5625rem;
   }
 
   .product-card__name {
-    font-size: var(--text-sm);
+    font-size: 0.875rem;
+    min-height: calc(2em * var(--leading-snug));
+  }
+
+  /* Parent-qualified: the base .product-card__specs rule sits later in this file */
+  .product-card .product-card__review-count,
+  .product-card .product-card__specs {
+    display: none;
+  }
+
+  .product-card__footer {
+    align-items: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    padding-top: var(--space-1);
   }
 
   .product-card__price {
     font-size: var(--text-base);
+  }
+
+  .product-card__old-price {
+    font-size: 0.75rem;
+  }
+
+  .product-card__add-btn {
+    width: 38px;
+    height: 38px;
   }
 }
 

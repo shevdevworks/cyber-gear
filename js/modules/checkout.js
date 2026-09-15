@@ -4,7 +4,8 @@
 
 import { store } from './store.js';
 import { formatPrice, generateOrderId } from '../utils/helpers.js';
-import { showToast } from '../app.js'; // Adding the toast import
+import { showToast } from '../utils/toast.js';
+
 // --------------------------------------------------------------------------
 // DOM CACHE
 // --------------------------------------------------------------------------
@@ -12,6 +13,7 @@ import { showToast } from '../app.js'; // Adding the toast import
 let DOM = {};
 let closePhoneCountryList  = () => {};
 let resetPhoneCountrySelect = () => {};
+let autoCloseTimer = null;
 
 function cacheDomNodes() {
   DOM = {
@@ -60,15 +62,26 @@ export function initCheckout() {
   if (DOM.successScreen) DOM.successScreen.hidden = true;
   if (DOM.form)          DOM.form.hidden          = false;
 
+  let wasOpen = false;
+
   store.subscribe(({ ui, cart, promo }) => {
     // Strict check: only explicit true opens the modal
     const isOpen = ui.checkoutOpen === true;
+    if (isOpen === wasOpen) return;
+    wasOpen = isOpen;
+
     DOM.modal.hidden = !isOpen;
-    document.body.style.overflow = isOpen ? 'hidden' : '';
 
     if (isOpen) {
       updateOrderTotal(cart, promo);
-      setTimeout(() => DOM.fields.name?.focus(), 350);
+      // On touch devices autofocus pops the keyboard over the sheet right away —
+      // only do it where there's a real pointer
+      if (window.matchMedia('(hover: hover)').matches) {
+        setTimeout(() => DOM.fields.name?.focus(), 350);
+      } else {
+        DOM.panel?.setAttribute('tabindex', '-1');
+        DOM.panel?.focus({ preventScroll: true });
+      }
     }
   }, 'ui');
 
@@ -117,6 +130,9 @@ function initCloseHandlers() {
 }
 
 function closeCheckout() {
+  clearTimeout(autoCloseTimer);
+  if (!store.getState().ui.checkoutOpen) return;
+
   store.setUi({ checkoutOpen: false });
   setTimeout(resetForm, 400);
 }
@@ -124,17 +140,22 @@ function closeCheckout() {
 function resetForm() {
   DOM.form?.reset();
   resetPhoneCountrySelect();
+  updateAddressVisibility(getDeliveryMode());
 
   // Remove validation states
   Object.values(DOM.fields).forEach(field => {
-    if (field) setFieldState(field, 'idle');
+    if (!field) return;
+    setFieldState(field, 'idle');
+    field._touched = false;
   });
 
   // Hide success screen, show form
   if (DOM.successScreen) DOM.successScreen.hidden = true;
   if (DOM.form)          DOM.form.hidden          = false;
 
-  updateSubmitButton();
+  // After a successful order the button was left in "Placing order..." with
+  // pointer-events: none, so the next checkout couldn't be submitted at all
+  setSubmitLoading(false);
 }
 
 // --------------------------------------------------------------------------
@@ -282,42 +303,26 @@ function initLiveValidation() {
   allFields.forEach(field => {
     // First touch: validate on blur
     field.addEventListener('blur', () => {
+      // Empty untouched field on blur (e.g. just tabbing through) — don't nag yet
+      if (!field._touched && !field.value.trim()) return;
       field._touched = true;
       validateField(field);
-      updateSubmitButton();
     });
 
     // After first touch: validate on input
     field.addEventListener('input', () => {
-      if (field._touched) {
-        validateField(field);
-        updateSubmitButton();
-      }
+      if (field._touched) validateField(field);
     });
   });
 }
 
-function updateSubmitButton() {
-  if (!DOM.submitBtn) return;
-
-  const allValid = Object.values(DOM.fields).every(field => {
-    if (!field) return true;
-
-    // Skip address validation for pickup
-    if (field === DOM.fields.address && getDeliveryMode() !== 'courier') {
-      return true;
-    }
-
-    const name      = field.name || field.dataset.js?.replace('checkout-', '');
-    const validator = validators[name];
-    if (!validator) return true;
-
-    return validator(field.value) === null;
-  });
-
-  DOM.submitBtn.disabled = !allValid;
-  DOM.submitBtn.setAttribute('aria-disabled', String(!allValid));
-}
+/*
+  The submit button used to be disabled until every field was valid, but that
+  state was only recalculated on blur — after typing the last field the
+  button stayed grey, and it started enabled on the first open but disabled
+  after a reset. It now stays enabled; handleSubmit() validates everything,
+  shows the errors and scrolls to the first one.
+*/
 
 // --------------------------------------------------------------------------
 // PHONE COUNTRY SELECT
@@ -572,7 +577,6 @@ function initDeliverySteps() {
         setFieldState(DOM.fields.address, 'idle');
         DOM.fields.address._touched = false;
       }
-      updateSubmitButton();
 
       // Delivery fee depends on the selected mode — refresh the total
       const { cart, promo } = store.getState();
@@ -711,13 +715,7 @@ function showSuccessScreen(orderId) {
   // Remove promo code
   store.removePromo();
 
-  // Auto-close after 5 seconds
-  const autoCloseTimer = setTimeout(() => {
-    closeCheckout();
-  }, 5000);
-
-  // Clear timeout if closed manually
-  DOM.successScreen
-    ?.querySelector('[data-js="checkout-close"]')
-    ?.addEventListener('click', () => clearTimeout(autoCloseTimer), { once: true });
+  // Auto-close after 5 seconds (closeCheckout() clears it on manual close)
+  clearTimeout(autoCloseTimer);
+  autoCloseTimer = setTimeout(closeCheckout, 5000);
 }

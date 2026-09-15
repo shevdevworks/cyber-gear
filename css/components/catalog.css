@@ -231,7 +231,7 @@
 }
 
 .filter-tag:hover {
-  background: rgba(255, 165, 40, 0.15);
+  background: var(--color-accent-glow);
   border-color: var(--color-accent);
 }
 
@@ -246,13 +246,16 @@
 
 .catalog__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--space-4);
   list-style: none;
 }
 
-.catalog__grid--list {
-  grid-template-columns: 1fr;
+/* List view is desktop/tablet only — the toggle is hidden below 641px */
+@media (min-width: 641px) {
+  .catalog__grid--list {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -302,21 +305,70 @@
   }
 }
 
+/* Sticky header is taller on small screens (logo row + category chips) */
+@media (max-width: 768px) {
+  .catalog {
+    scroll-margin-top: 128px;
+  }
+}
+
 @media (max-width: 640px) {
   .main__layout {
-    padding-block: var(--space-5);
+    padding-block: var(--space-5) var(--space-10);
+  }
+
+  .catalog {
+    gap: var(--space-4);
   }
 
   .catalog__toolbar {
     gap: var(--space-3);
   }
 
+  .catalog__heading {
+    font-size: var(--text-md);
+  }
+
+  /* Filters + sort as two equal full-width controls */
+  .catalog__toolbar-right {
+    width: 100%;
+    flex-shrink: 1;
+  }
+
+  .catalog__filters-btn,
+  .catalog__sort {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .catalog__filters-btn {
+    justify-content: center;
+    height: 44px;
+  }
+
+  .select-wrapper {
+    width: 100%;
+  }
+
+  .catalog__sort-select {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    /* < 16px makes iOS Safari zoom the whole page on focus */
+    font-size: 16px;
+  }
+
   .catalog__view-toggle {
     display: none;
   }
 
-  .catalog__sort-select {
-    min-width: 140px;
-    font-size: var(--text-xs);
+  /* Two columns on phones — one giant card per screen is a lot of scrolling */
+  .catalog__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .catalog__empty {
+    padding: var(--space-12) var(--space-4);
   }
 }

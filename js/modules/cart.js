@@ -139,10 +139,19 @@ function bindListEvents() {
     const id = li?.dataset.productId;
     if (!id) return;
 
+    if (li.classList.contains('cart-item--removing')) return;
     li.classList.add('cart-item--removing');
-    li.addEventListener('transitionend', () => {
+
+    // transitionend may never fire (tab in background, transition interrupted) —
+    // the timeout guarantees the item still gets removed
+    let removed = false;
+    const remove = () => {
+      if (removed) return;
+      removed = true;
       store.removeFromCart(id);
-    }, { once: true });
+    };
+    li.addEventListener('transitionend', remove, { once: true });
+    setTimeout(remove, 300);
   });
 
   delegate(DOM.listEl, 'click', '[data-js="cart-qty-increase"]', (e, el) => {
@@ -169,6 +178,11 @@ export function initCart() {
   store.subscribe((state) => {
     renderCartList(state.cart);
     updateTotals(state.cart, state.promo);
+
+    // Promo is dropped when the cart empties — don't keep "applied" text around
+    if (!state.promo.code && DOM.promoMsg?.classList.contains('cart__promo-message--success')) {
+      DOM.promoMsg.hidden = true;
+    }
   }, 'cart');
 
   DOM.promoBtn?.addEventListener('click', handlePromo);

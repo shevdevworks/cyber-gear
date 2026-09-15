@@ -384,24 +384,118 @@
    RESPONSIVE
 -------------------------------------------------------------------------- */
 
-/* Tablet: hide text navigation links */
+/*
+  Tablet / mobile: the category nav used to be hidden completely, leaving
+  phones with no way to switch categories except the filters drawer.
+  Now it drops to a second row of horizontally scrollable chips.
+*/
 @media (max-width: 768px) {
+  .header__inner {
+    flex-wrap: wrap;
+    height: auto;
+    column-gap: var(--space-4);
+    row-gap: 0;
+    padding-block: var(--space-2);
+  }
+
+  .header__logo {
+    min-height: 44px;
+  }
+
+  .header__actions {
+    margin-left: auto;
+    gap: var(--space-1);
+  }
+
+  .header__action-btn,
+  .header__cart-btn {
+    width: 44px;
+    height: 44px;
+  }
+
   .header__nav {
+    order: 3;
+    flex: 1 0 100%;
+    /* Bleed to the screen edges so chips scroll under the gutter, not get cut at it */
+    margin-inline: calc(-1 * var(--container-pad));
+    padding-inline: var(--container-pad);
+    padding-block: var(--space-1) var(--space-1);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .header__nav::-webkit-scrollbar {
     display: none;
   }
 
-  .header__inner {
-    gap: var(--space-4);
+  .header__nav-list {
+    gap: var(--space-2);
+  }
+
+  .header__nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: var(--space-2) var(--space-4);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+  }
+
+  .header__nav-link--active,
+  .header__nav-link[aria-current="true"] {
+    color: var(--color-text-primary);
+    border-color: var(--color-border-accent);
+    background: var(--color-accent-ghost);
+  }
+
+  /* The neon underline doesn't fit a pill shape */
+  .header__nav-link::after {
+    display: none;
+  }
+
+  /* "ESC" means nothing on a touch keyboard, and it eats input width */
+  .header__search-hint {
+    display: none;
+  }
+
+  .header__search-input {
+    padding-right: var(--space-4);
   }
 }
 
-/* Mobile: more compact */
 @media (max-width: 480px) {
+  .header__logo-text {
+    font-size: 1.125rem;
+  }
+}
+
+/* Small phones (iPhone SE 1st gen, older Androids) — keep logo and icons on one row */
+@media (max-width: 360px) {
   .header__inner {
-    height: 56px;
+    column-gap: var(--space-2);
   }
 
   .header__logo-text {
-    font-size: var(--text-base);
+    font-size: 1rem;
+  }
+
+  .header__action-btn,
+  .header__cart-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Hover-only effects shouldn't stick after a tap on touch screens */
+@media (hover: none) {
+  .header__nav-link:hover {
+    background: transparent;
+  }
+
+  .header__nav-link--active:hover,
+  .header__nav-link[aria-current="true"]:hover {
+    background: var(--color-accent-ghost);
   }
 }

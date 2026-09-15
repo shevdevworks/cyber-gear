@@ -205,7 +205,7 @@
 
 .filter-checkbox__text {
   font-size: var(--text-sm);
-  color: #6666AA;
+  color: var(--color-text-secondary);
   flex: 1;
   transition: color var(--duration-fast) var(--ease-out-expo);
 }
@@ -515,6 +515,12 @@
    FILTERS DRAWER
 -------------------------------------------------------------------------- */
 
+/* "Show N products" only makes sense inside the drawer.
+   Parent-qualified to beat .btn { display: inline-flex } from cart.css, which loads later */
+.filters__actions .filters__apply {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .filters {
     position: fixed;
@@ -522,23 +528,77 @@
     left: 0;
     bottom: 0;
     z-index: var(--z-drawer);
-    width: clamp(280px, 80vw, 360px);
-    max-height: 100dvh;
-    padding: var(--space-6);
+    width: min(360px, 88vw);
+    max-height: none;
+    height: 100dvh;
+    padding: var(--space-5) var(--space-5) 0;
     background: var(--color-bg-surface);
     box-shadow:
       8px 0 60px rgba(0, 0, 0, 0.8),
       1px 0 0 var(--color-border-default);
     border-right: none;
+    overscroll-behavior: contain;
     transform: translateX(-100%);
-    transition: transform var(--duration-drawer) var(--ease-out-expo);
+    /* visibility keeps the closed drawer out of Tab order / screen readers;
+       it flips only after the slide-out finishes */
+    visibility: hidden;
+    transition:
+      transform  var(--duration-drawer) var(--ease-out-expo),
+      visibility 0s linear var(--duration-drawer);
   }
 
   .filters--open {
     transform: translateX(0);
+    visibility: visible;
+    transition: transform var(--duration-drawer) var(--ease-out-expo);
   }
 
   .filters__close-btn {
     display: flex !important;
+    width: 44px;
+    height: 44px;
+    margin-right: calc(-1 * var(--space-2));
+  }
+
+  /* Actions stick to the bottom of the drawer so "Show N products" is always reachable */
+  .filters__actions {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding-block: var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
+    background: var(--color-bg-surface);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .filters__actions .btn {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  .filters__actions .filters__apply {
+    display: inline-flex;
+  }
+
+  .filter-checkbox,
+  .filter-toggle-switch {
+    min-height: 44px;
+  }
+
+  /* < 16px makes iOS Safari zoom the page on focus */
+  .filter-price__input {
+    font-size: 16px;
+  }
+}
+
+/* Bigger slider thumbs for fingers */
+@media (pointer: coarse) {
+  .filter-price__thumb::-webkit-slider-thumb {
+    width: 26px;
+    height: 26px;
+  }
+
+  .filter-price__thumb::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
   }
 }

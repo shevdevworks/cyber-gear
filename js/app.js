@@ -7,7 +7,11 @@ import { initCatalog, getFilteredProducts }       from './modules/catalog.js';
 import { initCart }                               from './modules/cart.js';
 import { initCheckout }                           from './modules/checkout.js';
 import { $$, debounce }                           from './utils/helpers.js';
+import { showToast }                              from './utils/toast.js';
 import PRODUCTS                                   from './data/products.js';
+
+/** Same breakpoint as the filters drawer in filters.css */
+const DRAWER_MQ = window.matchMedia('(max-width: 1024px)');
 
 // --------------------------------------------------------------------------
 // INITIALIZATION
@@ -17,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initCatalog();
   initCart();
   initCheckout();
-  
+
+  initLayers();
   initStickyHeader();
   initPriceRangeSlider();
   initFilters();
@@ -34,6 +39,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.info('[CyberGear] App initialized ✓');
 });
+
+// --------------------------------------------------------------------------
+// 0. LAYERS — overlay + page scroll lock
+// --------------------------------------------------------------------------
+
+/**
+ * Cart, filters drawer and checkout all need the overlay / scroll lock.
+ * Previously each module toggled body.style.overflow and overlay.hidden on
+ * its own, so they kept overwriting each other. Now it's derived from state
+ * in one place.
+ */
+function initLayers() {
+  const overlay = document.querySelector('[data-js="overlay"]');
+
+  store.subscribe(({ ui }) => {
+    const drawerOpen = ui.cartOpen || ui.filtersOpen;
+    if (overlay) overlay.hidden = !drawerOpen;
+    document.body.style.overflow = (drawerOpen || ui.checkoutOpen) ? 'hidden' : '';
+  }, 'ui');
+}
+
+/**
+ * Brings the catalog into view — used after picking a category or typing a
+ * search on small screens, where the hero pushes results below the fold.
+ */
+function revealCatalog() {
+  const catalog = document.querySelector('[data-js="catalog"]');
+  if (!catalog) return;
+
+  const { top } = catalog.getBoundingClientRect();
+  if (top > window.innerHeight * 0.5 || top < 0) {
+    catalog.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 
 // --------------------------------------------------------------------------
 // 1. STICKY HEADER
@@ -90,7 +129,7 @@ function initPriceRangeSlider() {
     const GAP  = 1;
 
     if (minVal >= maxVal - GAP) {
-      if (document.activeElement === thumbMin) {
+      if (document.activeElement === thumbMin || document.activeElement === inputMin) {
         minVal = maxVal - GAP;
         thumbMin.value = minVal;
       } else {
@@ -134,13 +173,25 @@ function initPriceRangeSlider() {
 
   if (inputMax) {
     inputMax.addEventListener('change', () => {
-      thumbMax.value = priceToPercent(parseInt(inputMax.value, 10) || PRICE_MAX);
+      const value = parseInt(inputMax.value, 10);
+      thumbMax.value = priceToPercent(Number.isNaN(value) ? PRICE_MAX : value);
       const prices = updateSliderUI();
       dispatchToStore(prices);
     });
   }
 
-  updateSliderUI();
+  // "Reset all" clears the price in the store — bring the slider back too
+  store.subscribe(({ filters }) => {
+    const isDefault = filters.priceMin === 0 && filters.priceMax === Infinity;
+    const uiIsDefault = thumbMin.value === '0' && thumbMax.value === '100';
+    const isDragging = [thumbMin, thumbMax, inputMin, inputMax].includes(document.activeElement);
+
+    if (isDefault && !uiIsDefault && !isDragging) {
+      thumbMin.value = 0;
+      thumbMax.value = 100;
+      updateSliderUI();
+    }
+  }, 'filters');
 }
 
 // --------------------------------------------------------------------------
@@ -170,24 +221,18 @@ function initFilters() {
     }
   });
 
-  $$('[data-js="filters-reset"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      store.resetFilters();
-      syncFiltersUI(); 
-    });
+  // Delegated: the "Reset filters" button in the catalog empty state is
+  // detached from the DOM while products are shown
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-js="filters-reset"]')) store.resetFilters();
   });
 
-  store.subscribe((state) => {
-    if (state.filters.categories.length === 0) {
-      syncCategoryCheckboxes([]);
-    }
-  }, 'filters');
+  // Checkboxes always mirror the store — covers reset, header nav and footer links
+  store.subscribe(syncFiltersUI, 'filters');
 }
 
 /**
  * Collapsible filter groups (Price / Category / Connectivity).
- * The HTML/CSS for this already existed (aria-expanded, chevron rotation,
- * max-height transition on .filter-group__body) — it just had no JS behind it.
  */
 function initFilterGroupToggles() {
   $$('[data-js="filter-toggle"]').forEach(btn => {
@@ -227,15 +272,13 @@ function initFilterGroupToggles() {
 function handleArrayFilter(filterKey, value, checked) {
   const current = store.getState().filters[filterKey];
   const updated = checked
-    ? [...current, value]               
-    : current.filter(v => v !== value); 
+    ? [...new Set([...current, value])]
+    : current.filter(v => v !== value);
 
   store.setFilters({ [filterKey]: updated });
 }
 
-function syncFiltersUI() {
-  const state = store.getState();
-
+function syncFiltersUI(state = store.getState()) {
   $$('[data-js="filter-checkbox"]').forEach(input => {
     const filterType = input.dataset.filter;
     if (filterType === 'category') {
@@ -245,12 +288,6 @@ function syncFiltersUI() {
     } else if (filterType === 'rgb') {
       input.checked = state.filters.rgb;
     }
-  });
-}
-
-function syncCategoryCheckboxes(activeCategories) {
-  $$('[data-js="filter-checkbox"][data-filter="category"]').forEach(input => {
-    input.checked = activeCategories.includes(input.value);
   });
 }
 
@@ -266,7 +303,9 @@ function initSortSelect() {
     store.setSortBy(e.target.value);
   });
 
-  sortSelect.value = store.getState().sortBy;
+  store.subscribe(({ sortBy }) => {
+    if (sortSelect.value !== sortBy) sortSelect.value = sortBy;
+  }, 'filters');
 }
 
 // --------------------------------------------------------------------------
@@ -302,24 +341,32 @@ function initViewToggle() {
 // --------------------------------------------------------------------------
 
 function initCartToggle() {
-  const cartBtn    = document.querySelector('[data-js="cart-toggle"]');
-  const cartDrawer = document.querySelector('[data-js="cart-drawer"]');
-  const cartClose  = document.querySelector('[data-js="cart-close"]');
-  const overlay    = document.querySelector('[data-js="overlay"]');
-  const cartCount  = document.querySelector('[data-js="cart-count"]');
+  const cartBtn     = document.querySelector('[data-js="cart-toggle"]');
+  const cartDrawer  = document.querySelector('[data-js="cart-drawer"]');
+  const closeBtns   = $$('[data-js="cart-close"]');
+  const headerClose = cartDrawer?.querySelector('.cart__close-btn');
+  const overlay     = document.querySelector('[data-js="overlay"]');
+  const cartCount   = document.querySelector('[data-js="cart-count"]');
 
   if (!cartBtn || !cartDrawer) return;
 
+  // Only move focus when the drawer actually opens/closes — every other UI
+  // update (search, view mode, filters) used to yank focus to the cart button
+  let wasOpen = false;
+
   store.subscribe((state) => {
     const isOpen = state.ui.cartOpen;
-    cartDrawer.hidden      = !isOpen;
-    if (overlay) overlay.hidden = !isOpen;
+    if (isOpen === wasOpen) return;
+    wasOpen = isOpen;
+
+    cartDrawer.hidden = !isOpen;
     cartBtn.setAttribute('aria-expanded', String(isOpen));
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-    
-    if (isOpen) setTimeout(() => cartClose?.focus(), 50);
-    else cartBtn.focus();
+
+    if (isOpen) setTimeout(() => headerClose?.focus(), 50);
+    else cartBtn.focus({ preventScroll: true });
   }, 'ui');
+
+  let prevCount = null;
 
   store.subscribe((state) => {
     if (!cartCount) return;
@@ -329,22 +376,29 @@ function initCartToggle() {
       cartCount.textContent = count > 99 ? '99+' : count;
       cartCount.hidden      = false;
 
-      cartCount.classList.remove('header__cart-count--updated');
-      void cartCount.offsetWidth; 
-      cartCount.classList.add('header__cart-count--updated');
-      setTimeout(() => cartCount.classList.remove('header__cart-count--updated'), 600);
+      // Pulse only when the number really changed (not on load / promo apply)
+      if (prevCount !== null && count !== prevCount) {
+        cartCount.classList.remove('header__cart-count--updated');
+        void cartCount.offsetWidth;
+        cartCount.classList.add('header__cart-count--updated');
+        setTimeout(() => cartCount.classList.remove('header__cart-count--updated'), 600);
+      }
     } else {
       cartCount.hidden = true;
     }
+    prevCount = count;
 
     cartBtn.setAttribute('aria-label',
       count > 0 ? `Open cart, ${count} items` : 'Open cart'
     );
   }, 'cart');
 
-  cartBtn.addEventListener('click', ()  => store.setUi({ cartOpen: true }));
-  cartClose?.addEventListener('click', () => store.setUi({ cartOpen: false }));
-  overlay?.addEventListener('click',   () => store.setUi({ cartOpen: false }));
+  cartBtn.addEventListener('click', () => store.setUi({ cartOpen: true }));
+  // Includes the "Browse catalog" button in the empty state, which had no handler
+  closeBtns.forEach(btn => btn.addEventListener('click', () => store.setUi({ cartOpen: false })));
+  overlay?.addEventListener('click', () => {
+    if (store.getState().ui.cartOpen) store.setUi({ cartOpen: false });
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && store.getState().ui.cartOpen) {
@@ -375,7 +429,7 @@ function initSearchToggle() {
     searchBtn.setAttribute('aria-expanded', 'false');
     store.setUi({ searchOpen: false });
     if (searchInput) searchInput.value = '';
-    store.setFilters({ searchQuery: '' });
+    if (store.getState().filters.searchQuery) store.setFilters({ searchQuery: '' });
   };
 
   searchBtn.addEventListener('click', () =>
@@ -384,11 +438,26 @@ function initSearchToggle() {
 
   searchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') close();
+    // Mobile keyboards: "Go/Search" key just hides the keyboard and shows results
+    if (e.key === 'Enter') {
+      searchInput.blur();
+      revealCatalog();
+    }
   });
 
   searchInput?.addEventListener('input', debounce((e) => {
-    store.setFilters({ searchQuery: e.target.value.trim().toLowerCase() });
+    const query = e.target.value.trim().toLowerCase();
+    store.setFilters({ searchQuery: query });
+    if (query) revealCatalog();
   }, 300));
+
+  // "Reset all" also clears the search query — clear the field to match
+  store.subscribe(({ filters }) => {
+    if (!searchInput || filters.searchQuery) return;
+    if (document.activeElement !== searchInput && searchInput.value.trim()) {
+      searchInput.value = '';
+    }
+  }, 'filters');
 }
 
 // --------------------------------------------------------------------------
@@ -398,22 +467,42 @@ function initSearchToggle() {
 function initNavCategories() {
   const navLinks = $$('[data-js="nav-category"]');
 
+  const selectCategory = (category) => {
+    store.setFilters({ categories: category === 'all' ? [] : [category] });
+  };
+
   navLinks.forEach(btn => {
     btn.addEventListener('click', () => {
-      const category = btn.dataset.category;
-
-      navLinks.forEach(link => {
-        const isActive = link === btn;
-        link.classList.toggle('header__nav-link--active', isActive);
-        link.setAttribute('aria-current', isActive ? 'true' : 'false');
-      });
-
-      const newCategories = category === 'all' ? [] : [category];
-      syncCategoryCheckboxes(newCategories);
-
-      store.setFilters({ categories: newCategories });
+      selectCategory(btn.dataset.category);
+      revealCatalog();
     });
   });
+
+  // Footer "Shop" links point at the same categories
+  $$('[data-js="footer-category"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (link.dataset.sort) store.setSortBy(link.dataset.sort);
+      selectCategory(link.dataset.category);
+      document.querySelector('[data-js="catalog"]')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Active state follows the store, so checkbox filters and "Reset all"
+  // keep the header nav in sync as well
+  store.subscribe(({ filters }) => {
+    const { categories } = filters;
+    const active = categories.length === 0 ? 'all'
+      : categories.length === 1 ? categories[0]
+      : null;
+
+    navLinks.forEach(link => {
+      const isActive = link.dataset.category === active;
+      link.classList.toggle('header__nav-link--active', isActive);
+      link.setAttribute('aria-current', String(isActive));
+    });
+  }, 'filters');
 }
 
 // --------------------------------------------------------------------------
@@ -431,51 +520,46 @@ function initFiltersDrawer() {
   const openFilters = () => {
     filtersPanel.classList.add('filters--open');
     openBtn?.setAttribute('aria-expanded', 'true');
-    store.setUi({ filtersOpen: true });
-    
     if (closeBtn) closeBtn.hidden = false;
-    if (overlay && !store.getState().ui.cartOpen) {
-      overlay.hidden = false;
-    }
-    document.body.style.overflow = 'hidden';
+    store.setUi({ filtersOpen: true });
+    setTimeout(() => closeBtn?.focus(), 50);
   };
 
   const closeFilters = () => {
+    if (!store.getState().ui.filtersOpen) return;
     filtersPanel.classList.remove('filters--open');
     openBtn?.setAttribute('aria-expanded', 'false');
-    store.setUi({ filtersOpen: false });
-    
     if (closeBtn) closeBtn.hidden = true;
-    if (overlay && !store.getState().ui.cartOpen) {
-      overlay.hidden = true;
-    }
-    document.body.style.overflow = '';
+    store.setUi({ filtersOpen: false });
   };
 
   openBtn?.addEventListener('click',  openFilters);
   closeBtn?.addEventListener('click', closeFilters);
-
-  overlay?.addEventListener('click', () => {
-    if (store.getState().ui.filtersOpen) closeFilters();
-  });
+  overlay?.addEventListener('click',  closeFilters);
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && store.getState().ui.filtersOpen) closeFilters();
+    if (e.key === 'Escape') closeFilters();
   });
 
-  const applyBtn      = document.querySelector('[data-js="filters-apply"]');
-  const applyCountEl  = document.querySelector('[data-js="filters-apply-count"]');
+  // Rotating a tablet / resizing to desktop turns the drawer back into a
+  // sidebar — don't leave the overlay and scroll lock behind
+  DRAWER_MQ.addEventListener('change', (e) => {
+    if (!e.matches) closeFilters();
+  });
+
+  const applyBtn     = document.querySelector('[data-js="filters-apply"]');
+  const applyCountEl = document.querySelector('[data-js="filters-apply-count"]');
 
   if (applyBtn && applyCountEl) {
     store.subscribe((state) => {
-      const isMobile = window.matchMedia('(max-width: 1024px)').matches;
-      applyBtn.hidden = !isMobile;
-
       const count = getFilteredProducts(PRODUCTS, state.filters, state.sortBy).length;
       applyCountEl.textContent = count;
     }, 'filters');
 
-    applyBtn.addEventListener('click', closeFilters);
+    applyBtn.addEventListener('click', () => {
+      closeFilters();
+      revealCatalog();
+    });
   }
 }
 
@@ -523,38 +607,13 @@ function initConnectivityCounters() {
 // 11. TOAST NOTIFICATIONS
 // --------------------------------------------------------------------------
 
-export function showToast(message, type = 'success') {
-  const container = document.querySelector('[data-js="toast-container"]');
-  if (!container) return;
-
-  const icon = type === 'success' ? '✓' : '✕';
-
-  const toast = document.createElement('div');
-  toast.className = `toast toast--${type}`;
-  toast.innerHTML = `
-    <span class="toast__icon" aria-hidden="true">${icon}</span>
-    <p class="toast__text">${message}</p>
-  `;
-
-  container.appendChild(toast);
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => toast.classList.add('toast--visible'));
-  });
-
-  setTimeout(() => {
-    toast.classList.remove('toast--visible');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-}
-
 function initAddToCartToast() {
   const grid = document.querySelector('[data-js="product-grid"]');
   if (!grid) return;
 
   grid.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-js="add-to-cart"]');
-    if (!btn) return;
+    if (!btn || btn.disabled) return;
 
     const card = btn.closest('[data-js="product-card"]');
     const name = btn.dataset.productName

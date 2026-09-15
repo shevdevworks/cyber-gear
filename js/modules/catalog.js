@@ -154,6 +154,13 @@ function sortProducts(products, sortBy) {
 // RENDERING — building DOM from data
 // --------------------------------------------------------------------------
 
+/*
+  The empty-state <li> lives inside the grid, so grid.innerHTML = '' used to
+  delete it on the very first render — "Nothing found" could never appear.
+  Keep a reference to the node and put it back after every render.
+*/
+let emptyStateEl = null;
+
 /**
  * Renders the product grid into the container.
  * Uses innerHTML for card markup — safe here because it's built from
@@ -163,10 +170,12 @@ function sortProducts(products, sortBy) {
  */
 export function renderCatalog(productsList) {
   const grid    = document.querySelector('[data-js="product-grid"]');
-  const emptyEl = document.querySelector('[data-js="catalog-empty"]');
   const countEl = document.querySelector('[data-js="catalog-count"]');
 
   if (!grid) return;
+
+  emptyStateEl ??= document.querySelector('[data-js="catalog-empty"]');
+  const emptyEl = emptyStateEl;
 
   // Update results counter
   if (countEl) {
@@ -176,7 +185,10 @@ export function renderCatalog(productsList) {
   // Empty state
   if (productsList.length === 0) {
     grid.innerHTML = '';
-    if (emptyEl) emptyEl.hidden = false;
+    if (emptyEl) {
+      emptyEl.hidden = false;
+      grid.appendChild(emptyEl);
+    }
     return;
   }
 
@@ -381,7 +393,7 @@ function renderSpecChips(specs, category) {
       // Boolean fields get a special display
       const label = typeof value === 'boolean'
         ? (value ? field.trueLabel : field.falseLabel)
-        : value;
+        : (field.labels?.[value] ?? value);
 
       if (!label) return '';
       return `<li class="spec-chip">${label}</li>`;
@@ -410,20 +422,27 @@ const CATEGORY_ICONS = {
  * Configuration: which spec fields to display per category.
  * trueLabel / falseLabel — for boolean fields (rgb: true → "RGB")
  */
+/** Raw spec values → human-readable chip text ("both" alone means nothing) */
+const CONNECTIVITY_LABELS = {
+  wired:    'Wired',
+  wireless: 'Wireless',
+  both:     'Wired + wireless',
+};
+
 const SPEC_DISPLAY_FIELDS = {
   keyboards: [
     { key: 'switch',       },
-    { key: 'connectivity', },
+    { key: 'connectivity', labels: CONNECTIVITY_LABELS },
     { key: 'rgb',          trueLabel: 'RGB lighting', falseLabel: null },
   ],
   mice: [
     { key: 'sensor',       },
     { key: 'weight',       },
-    { key: 'connectivity', },
+    { key: 'connectivity', labels: CONNECTIVITY_LABELS },
   ],
   headsets: [
     { key: 'drivers',      },
-    { key: 'connectivity', },
+    { key: 'connectivity', labels: CONNECTIVITY_LABELS },
     { key: 'microphone',   },
   ],
 };

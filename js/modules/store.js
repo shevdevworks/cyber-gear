@@ -67,9 +67,29 @@ function createStore() {
     listeners.get('*')?.forEach(fn => fn(snapshot, channel));
   }
 
+  /**
+   * Discount depends on the subtotal, so it has to be recalculated on every
+   * cart change — otherwise a 10% code applied to a $300 cart keeps
+   * subtracting $30 after items are removed.
+   */
+  function calcPromoDiscount(code, cart) {
+    const promo = PROMO_CODES[code];
+    if (!promo) return 0;
+
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    if (promo.type === 'percent') return Math.round(subtotal * promo.value / 100);
+    if (promo.type === 'fixed')   return Math.min(promo.value, subtotal);
+    return 0;
+  }
+
   function setCart(newCart) {
-    state = { ...state, cart: newCart };
-    saveCart(newCart); 
+    const promo = newCart.length === 0
+      ? { code: null, discount: 0, label: null }
+      : { ...state.promo, discount: calcPromoDiscount(state.promo.code, newCart) };
+
+    state = { ...state, cart: newCart, promo };
+    saveCart(newCart);
     notify('cart');
   }
 
@@ -201,16 +221,7 @@ function createStore() {
         return { ok: false, message: 'Promo code already applied' };
       }
 
-      const subtotal = state.cart.reduce(
-        (sum, item) => sum + item.price * item.quantity, 0
-      );
-
-      let discount = 0;
-      if (promo.type === 'percent') {
-        discount = Math.round(subtotal * promo.value / 100);
-      } else if (promo.type === 'fixed') {
-        discount = Math.min(promo.value, subtotal);
-      }
+      const discount = calcPromoDiscount(code, state.cart);
 
       state = {
         ...state,

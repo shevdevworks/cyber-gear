@@ -189,8 +189,8 @@
   /* Divider between items */
   border-bottom: 1px solid var(--color-border-subtle);
 
-  /* New item entrance animation */
-  animation: slideInUp var(--duration-normal) var(--ease-out-expo) both;
+  /* New item entrance animation ("backwards" so it doesn't block the removal transform) */
+  animation: slideInUp var(--duration-normal) var(--ease-out-expo) backwards;
 
   transition: opacity var(--duration-fast) var(--ease-out-expo);
 }
@@ -212,7 +212,8 @@
 .cart-item__image {
   width: 72px;
   height: 72px;
-  object-fit: cover;
+  object-fit: contain;
+  padding: var(--space-1);
   border-radius: var(--radius-md);
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-subtle);
@@ -246,6 +247,7 @@
 /* Quantity controls */
 .cart-item__controls {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   gap: 0;
   margin-top: var(--space-2);
@@ -542,9 +544,18 @@
    RESPONSIVE
 -------------------------------------------------------------------------- */
 
+.cart {
+  height: 100dvh;
+  overscroll-behavior: contain;
+}
+
+.cart__list {
+  overscroll-behavior: contain;
+}
+
 @media (max-width: 480px) {
   .cart {
-    width: 100vw; /* On mobile the drawer takes the full screen */
+    width: 100%; /* On mobile the drawer takes the full screen (100vw overflows when a scrollbar exists) */
   }
 
   .cart__header,
@@ -553,14 +564,62 @@
     padding-inline: var(--space-4);
   }
 
+  .cart__header {
+    padding-block: var(--space-3);
+  }
+
+  .cart__close-btn {
+    width: 44px;
+    height: 44px;
+    margin-right: calc(-1 * var(--space-2));
+  }
+
+  .cart__summary {
+    gap: var(--space-3);
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  }
+
   .cart-item {
-    grid-template-columns: 60px 1fr auto;
-    gap: var(--space-2);
+    grid-template-columns: 64px 1fr auto;
+    gap: var(--space-3);
   }
 
   .cart-item__image {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .cart-item__name {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .cart-item__qty-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cart-item__qty {
+    min-width: 32px;
+    padding-block: 8px;
+  }
+
+  .cart-item__remove {
+    width: 36px;
+    height: 36px;
+    margin-right: calc(-1 * var(--space-2));
+    font-size: 1.25rem;
+  }
+
+  /* < 16px makes iOS Safari zoom the page on focus */
+  .cart__promo-input {
+    font-size: 16px;
+  }
+
+  .cart__promo-input-wrap .btn {
+    min-height: 44px;
   }
 }
 
