@@ -13,7 +13,7 @@ import { showToast } from '../utils/toast.js';
 let DOM = {};
 let closePhoneCountryList  = () => {};
 let resetPhoneCountrySelect = () => {};
-let autoCloseTimer = null;
+let submissionVersion = 0;
 
 function cacheDomNodes() {
   DOM = {
@@ -77,7 +77,7 @@ export function initCheckout() {
       // On touch devices autofocus pops the keyboard over the sheet right away —
       // only do it where there's a real pointer
       if (window.matchMedia('(hover: hover)').matches) {
-        setTimeout(() => DOM.fields.name?.focus(), 350);
+        setTimeout(() => { if (store.getState().ui.checkoutOpen) DOM.fields.name?.focus(); }, 350);
       } else {
         DOM.panel?.setAttribute('tabindex', '-1');
         DOM.panel?.focus({ preventScroll: true });
@@ -130,11 +130,15 @@ function initCloseHandlers() {
 }
 
 function closeCheckout() {
-  clearTimeout(autoCloseTimer);
+  submissionVersion++;
   if (!store.getState().ui.checkoutOpen) return;
 
   store.setUi({ checkoutOpen: false });
-  setTimeout(resetForm, 400);
+  resetForm();
+  const returnTarget = store.getState().cart.length
+    ? document.querySelector('[data-js="checkout-open"]')
+    : document.querySelector('[data-js="cart-drawer"] [data-js="cart-close"]');
+  returnTarget?.focus({ preventScroll: true });
 }
 
 function resetForm() {
@@ -179,7 +183,10 @@ function updateOrderTotal(cart, promo) {
 
   const subtotal      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const promoDiscount = promo?.discount ?? 0;
-  const deliveryFee   = DELIVERY_FEES[getDeliveryMode()] ?? 0;
+  const qualifiesForFreeShipping = subtotal - promoDiscount >= 20000;
+  const deliveryFee   = qualifiesForFreeShipping ? 0 : (DELIVERY_FEES[getDeliveryMode()] ?? 0);
+  const courierPrice = document.querySelector('[data-js="courier-price"]');
+  if (courierPrice) courierPrice.textContent = qualifiesForFreeShipping ? 'Free' : '$5';
   const total         = Math.max(0, subtotal - promoDiscount + deliveryFee);
 
   DOM.checkoutTotal.textContent = formatPrice(total);
@@ -620,6 +627,7 @@ function initFormSubmit() {
  */
 async function handleSubmit(e) {
   e.preventDefault();
+  if (DOM.submitBtn.disabled || store.getState().cart.length === 0) return;
 
   // Mark all fields as touched
   const allFields = Object.values(DOM.fields).filter(Boolean);
@@ -631,17 +639,20 @@ async function handleSubmit(e) {
   if (!isFormValid) {
     // Scroll to first invalid field
     const firstInvalidWrapper = DOM.form.querySelector('.form-field--error');
-    firstInvalidWrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    firstInvalidWrapper?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'center' });
+    firstInvalidWrapper?.querySelector('input, textarea')?.focus({ preventScroll: true });
     return;
   }
 
   // Show loading state
   setSubmitLoading(true);
+  const currentSubmission = ++submissionVersion;
 
   try {
     // Simulate API request
     const fullPhone = getFullPhoneNumber();
     await fakeApiRequest(fullPhone);
+    if (currentSubmission !== submissionVersion || !store.getState().ui.checkoutOpen) return;
 
     // Success
     const orderId = generateOrderId();
@@ -715,7 +726,5 @@ function showSuccessScreen(orderId) {
   // Remove promo code
   store.removePromo();
 
-  // Auto-close after 5 seconds (closeCheckout() clears it on manual close)
-  clearTimeout(autoCloseTimer);
-  autoCloseTimer = setTimeout(closeCheckout, 5000);
+  // Leave the confirmation visible until the visitor dismisses it.
 }

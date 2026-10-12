@@ -1,197 +1,99 @@
-/* ==========================================================================
-   CyberGear — Design Tokens  [TOXIC VIOLET EDITION]
-   Single source of truth for all colors, shadows, and spacing.
-   Change here — changes everywhere.
-   ========================================================================== */
-
-:root {
-
-  /* --------------------------------------------------------------------------
-     COLOR PALETTE — Deep Space Violet
-     Philosophy: toxic violet-blue, electric accents, depth.
-  -------------------------------------------------------------------------- */
-
-  /* Backgrounds — near-black with a violet undertone */
-  --color-bg-void:       #05050F;   /* Absolute darkness — body */
-  --color-bg-base:       #07070F;   /* Main page background */
-  --color-bg-surface:    #0D0D1E;   /* Card, panel surfaces */
-  --color-bg-elevated:   #13132A;   /* Elevated elements */
-  --color-bg-overlay:    #1A1A35;   /* Overlay for modals, cart */
-
-  /* Borders */
-  --color-border-subtle:  rgba(120, 60, 255, 0.07);
-  --color-border-default: rgba(120, 60, 255, 0.15);
-  --color-border-strong:  rgba(120, 60, 255, 0.28);
-  --color-border-accent:  rgba(168, 85, 247, 0.45);
-
-  /* --------------------------------------------------------------------------
-     TYPOGRAPHY — cool white with a bluish tint
-  -------------------------------------------------------------------------- */
-
-  --color-text-primary:   #E8E8FF;  /* Primary text — cool white */
-  --color-text-secondary: #8888BB;  /* Secondary */
-  --color-text-muted:     #7B7BAF;  /* Muted — raised to WCAG AA contrast (was #4A4A7A, 2.2-2.4:1) */
-  --color-text-disabled:  #2D2D55;  /* Disabled */
-  --color-text-inverse:   #FFFFFF;  /* Text on buttons */
-
-  /* --------------------------------------------------------------------------
-     ACCENT SYSTEM — Electric Violet + Cyan Lightning
-     Primary: violet #7C3AED / #A855F7
-     Secondary: toxic cyan #06B6D4 (lightning, highlights)
-  -------------------------------------------------------------------------- */
-
-  --color-accent:         #A855F7;  /* Main accent — bright violet */
-  --color-accent-bright:  #C084FC;  /* Hover — lighter */
-  --color-accent-dim:     #7C3AED;  /* Muted — dark violet */
-  --color-accent-ghost:   rgba(168, 85, 247, 0.10);
-  --color-accent-glow:    rgba(168, 85, 247, 0.20);
-
-  /* Cyan — for lightning, details, highlights */
-  --color-accent-blue:       #06B6D4;  /* Electric Cyan */
-  --color-accent-blue-ghost: rgba(6, 182, 212, 0.10);
-
-  /* Semantic */
-  --color-success:        #2DD4A0;
-  --color-success-ghost:  rgba(45, 212, 160, 0.08);
-  --color-error:          #FF5A6A;
-  --color-error-ghost:    rgba(255, 90, 106, 0.08);
-  --color-warning:        #C084FC;
-  --color-new-badge:      #06B6D4;       /* Cyan for NEW */
-  --color-new-badge-ghost: rgba(6, 182, 212, 0.12);
-
-  /* --------------------------------------------------------------------------
-     SHADOW SYSTEM — violet glow
-  -------------------------------------------------------------------------- */
-
-  --shadow-card:
-    0 1px 2px rgba(0, 0, 0, 0.7),
-    0 4px 16px rgba(0, 0, 0, 0.6),
-    0 0 0 1px var(--color-border-default);
-
-  --shadow-card-hover:
-    0 2px 4px rgba(0, 0, 0, 0.8),
-    0 8px 32px rgba(0, 0, 0, 0.7),
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px var(--color-border-accent),
-    0 0 30px rgba(124, 58, 237, 0.12),
-    0 0 60px rgba(168, 85, 247, 0.06);
-
-  --shadow-glow-amber:
-    0 0 0 1px var(--color-accent),
-    0 0 12px rgba(168, 85, 247, 0.4),
-    0 0 40px rgba(168, 85, 247, 0.15);
-
-  --shadow-glow-blue:
-    0 0 0 1px var(--color-accent-blue),
-    0 0 12px rgba(6, 182, 212, 0.4),
-    0 0 40px rgba(6, 182, 212, 0.15);
-
-  --shadow-drawer:
-    -8px 0 60px rgba(0, 0, 0, 0.85),
-    -1px 0 0 var(--color-border-default);
-
-  --shadow-header:
-    0 1px 0 var(--color-border-subtle),
-    0 4px 32px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(124, 58, 237, 0.05);
-
-  --shadow-btn-accent:
-    0 2px 8px rgba(168, 85, 247, 0.30),
-    0 0 0 1px rgba(168, 85, 247, 0.45);
-
-  --shadow-btn-accent-hover:
-    0 4px 20px rgba(168, 85, 247, 0.50),
-    0 0 0 1px rgba(168, 85, 247, 0.80),
-    0 0 40px rgba(168, 85, 247, 0.20);
-
-  /* --------------------------------------------------------------------------
-     TYPOGRAPHY
-  -------------------------------------------------------------------------- */
-
-  --font-display: 'Syne', 'Space Grotesk', system-ui, sans-serif;
-  --font-body:    'Inter', 'DM Sans', system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
-
-  --text-xs:   0.64rem;
-  --text-sm:   0.8rem;
+/* Performance Studio: graphite stage, silver surfaces, violet actions. */
+:root  {
+  --color-bg-void: #E4E5E8;
+  --color-bg-base: #F3F3F5;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-elevated: #EBECF0;
+  --color-bg-overlay: #E2E3E8;
+  --color-border-subtle: rgba(27, 29, 35, .08);
+  --color-border-default: rgba(27, 29, 35, .14);
+  --color-border-strong: rgba(27, 29, 35, .26);
+  --color-border-accent: rgba(105, 76, 224, .4);
+  --color-text-primary: #202126;
+  --color-text-secondary: #595C66;
+  --color-text-muted: #646771;
+  --color-text-disabled: #979AA4;
+  --color-text-inverse: #FFFFFF;
+  --color-accent: #694CE0;
+  --color-accent-bright: #593BCB;
+  --color-accent-dim: #5136B5;
+  --color-accent-ghost: rgba(105, 76, 224, .07);
+  --color-accent-glow: rgba(105, 76, 224, .14);
+  --color-accent-blue: #326F66;
+  --color-accent-blue-ghost: rgba(50, 111, 102, .08);
+  --color-success: #23705A;
+  --color-success-ghost: rgba(35, 112, 90, .08);
+  --color-error: #BD3445;
+  --color-error-ghost: rgba(189, 52, 69, .08);
+  --color-warning: #694CE0;
+  --color-new-badge: #35373F;
+  --color-new-badge-ghost: #EBECF0;
+  --shadow-card: 0 1px 0 rgba(20, 22, 30, .06);
+  --shadow-card-hover: 0 16px 36px rgba(20, 22, 30, .08);
+  --shadow-glow-amber: 0 0 0 2px rgba(105, 76, 224, .1);
+  --shadow-glow-blue: 0 0 0 2px rgba(50, 111, 102, .1);
+  --shadow-drawer: -16px 0 64px rgba(20, 22, 30, .12);
+  --shadow-header: 0 1px 0 rgba(255, 255, 255, .08);
+  --shadow-btn-accent: none;
+  --shadow-btn-accent-hover: 0 6px 16px rgba(105, 76, 224, .18);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', monospace;
+  --text-xs: .64rem;
+  --text-sm: .8rem;
   --text-base: 1rem;
-  --text-md:   1.25rem;
-  --text-lg:   1.563rem;
-  --text-xl:   1.953rem;
-  --text-2xl:  2.441rem;
-  --text-3xl:  3.052rem;
-
-  --font-weight-regular:  400;
-  --font-weight-medium:   500;
+  --text-md: 1.25rem;
+  --text-lg: 1.563rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-3xl: 3.052rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --font-weight-bold:     700;
-
-  --leading-tight:  1.2;
-  --leading-snug:   1.35;
+  --font-weight-bold: 700;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
   --leading-normal: 1.6;
-
-  --tracking-tight:  -0.03em;
-  --tracking-normal:  0;
-  --tracking-wide:    0.06em;
-  --tracking-wider:   0.12em;
-
-  /* --------------------------------------------------------------------------
-     GRID AND SPACING
-  -------------------------------------------------------------------------- */
-
-  --space-1:  0.25rem;
-  --space-2:  0.5rem;
-  --space-3:  0.75rem;
-  --space-4:  1rem;
-  --space-5:  1.25rem;
-  --space-6:  1.5rem;
-  --space-8:  2rem;
+  --tracking-tight: -.03em;
+  --tracking-normal: 0;
+  --tracking-wide: .06em;
+  --tracking-wider: .12em;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
   --space-16: 4rem;
   --space-20: 5rem;
   --space-24: 6rem;
-
-  --container-max: 1440px;
-  --container-pad: clamp(1rem, 4vw, 2.5rem);
-
-  /* --------------------------------------------------------------------------
-     BORDER RADIUS
-  -------------------------------------------------------------------------- */
-
-  --radius-sm:   4px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-2xl:  20px;
+  --container-max: 1600px;
+  --container-pad: clamp(1.25rem, 4.5vw, 5rem);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
   --radius-full: 9999px;
-
-  /* --------------------------------------------------------------------------
-     ANIMATIONS
-  -------------------------------------------------------------------------- */
-
-  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-expo:   cubic-bezier(0.7, 0, 0.84, 0);
-  --ease-in-out:    cubic-bezier(0.45, 0, 0.55, 1);
-  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
-
+  --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
+  --ease-in-expo: cubic-bezier(.7, 0, .84, 0);
+  --ease-in-out: cubic-bezier(.45, 0, .55, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
   --duration-instant: 80ms;
-  --duration-fast:    150ms;
-  --duration-normal:  250ms;
-  --duration-slow:    400ms;
-  --duration-drawer:  380ms;
-
-  /* --------------------------------------------------------------------------
-     Z-INDEX
-  -------------------------------------------------------------------------- */
-
-  --z-below:    -1;
-  --z-base:      0;
-  --z-raised:    10;
-  --z-dropdown:  100;
-  --z-sticky:    200;
-  --z-overlay:   300;
-  --z-drawer:    400;
-  --z-modal:     500;
-  --z-toast:     600;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-drawer: 380ms;
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-drawer: 400;
+  --z-modal: 500;
+  --z-toast: 600;
 }

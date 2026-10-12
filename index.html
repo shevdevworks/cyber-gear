@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="CyberGear — custom peripherals for those who don't compromise" />
 
-  <meta name="theme-color" content="#07070F" />
+  <meta name="theme-color" content="#191A1F" />
 
   <title>CyberGear — Custom Peripherals</title>
 
@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;450;500;600;700&display=swap"
     rel="stylesheet"
   />
 
@@ -45,9 +45,12 @@
   <link rel="stylesheet" href="css/components/toast.css" />
   <link rel="stylesheet" href="css/components/checkout.css" />
   <link rel="stylesheet" href="css/components/footer.css" />
+  <link rel="stylesheet" href="css/components/studio.css" />
+  <link rel="preload" as="image" href="assets/images/kb-wooting-60he.png" />
 </head>
 
 <body class="page">
+  <a class="skip-link" href="#main-content">Skip to products</a>
 
   <header class="header" role="banner" data-js="header">
     <div class="container header__inner">
@@ -72,7 +75,7 @@
               data-category="all"
               aria-current="true"
             >
-              All
+              Shop all
             </button>
           </li>
           <li class="header__nav-item">
@@ -102,10 +105,15 @@
               Headsets
             </button>
           </li>
+          <li class="header__nav-item"><a class="header__nav-link header__setup-link" href="#setup">Build your setup</a></li>
         </ul>
       </nav>
 
       <div class="header__actions">
+        <button class="header__action-btn" data-js="wishlist-filter" aria-label="Show saved products" aria-pressed="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20S3 14.4 3 8.5a4.8 4.8 0 0 1 9-2.2 4.8 4.8 0 0 1 9 2.2C21 14.4 12 20 12 20Z" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span class="saved-indicator" data-js="saved-count" hidden></span>
+        </button>
         <button
           class="header__action-btn"
           data-js="search-toggle"
@@ -170,73 +178,57 @@
     </div>
   </header>
 
-  <section class="hero" aria-label="CyberGear tagline">
+  <section class="hero" aria-labelledby="hero-title">
     <div class="container hero__inner">
       <div class="hero__content">
-        <div class="hero__label">
-          <span class="hero__label-dot" aria-hidden="true"></span>
-          Custom peripherals · Free shipping over $200
+        <p class="hero__intro"><span></span> A better feel. A better game.</p>
+        <h1 class="hero__title" id="hero-title"><span>Make every</span><span>move count.</span></h1>
+        <p class="hero__sub">The gear you reach for. The difference you feel.<br class="desktop-break"> Discover exceptional keyboards, mice and audio.</p>
+        <div class="hero__actions">
+          <a class="studio-button studio-button--light" href="#main-content">Explore the collection <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.5"/></svg></a>
+          <a class="hero__secondary" href="#setup">Build your setup</a>
         </div>
-        <h1 class="hero__title">
-          Built for those who<br>
-          <span class="hero__title-accent">don't compromise</span>
-        </h1>
-        <p class="hero__sub">
-          Pro-grade keyboards, mice and headsets — handpicked for gamers,
-          engineers and creators who demand the best.
-        </p>
-        <div class="hero__stats">
-          <div class="hero__stat">
-            <div class="hero__stat-value"><em>12</em></div>
-            <div class="hero__stat-label">Products</div>
-          </div>
-          <div class="hero__stat">
-            <div class="hero__stat-value"><em>12</em></div>
-            <div class="hero__stat-label">Brands</div>
-          </div>
-          <div class="hero__stat">
-            <div class="hero__stat-value"><em>$69</em></div>
-            <div class="hero__stat-label">Starting from</div>
-          </div>
-        </div>
+        <div class="hero__footnote"><span class="hero__line"></span> Carefully selected. Ready for your desk.</div>
       </div>
-      <div class="hero__visual" aria-hidden="true">
-        <svg class="hero__energy" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="heroBoltGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#7C3AED" />
-              <stop offset="50%" stop-color="#A855F7" />
-              <stop offset="100%" stop-color="#06B6D4" />
-            </linearGradient>
-            <radialGradient id="heroGlowGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#A855F7" stop-opacity="0.4" />
-              <stop offset="100%" stop-color="#A855F7" stop-opacity="0" />
-            </radialGradient>
-          </defs>
-
-          <circle class="hero__energy-glow" cx="100" cy="62" r="58" fill="url(#heroGlowGradient)" />
-          <polygon
-            class="hero__energy-hex"
-            points="100,18 138,40 138,84 100,106 62,84 62,40"
-            fill="none"
-            stroke="url(#heroBoltGradient)"
-            stroke-width="1.5"
-          />
-          <polygon
-            class="hero__energy-bolt"
-            points="104,22 64,70 100,70 96,102 136,54 100,54 104,22"
-            fill="url(#heroBoltGradient)"
-          />
-          <polygon class="hero__energy-spark hero__energy-spark--1" points="36,15 23,31 35,31 34,41 47,25 35,25 36,15" fill="#06B6D4" />
-          <polygon class="hero__energy-spark hero__energy-spark--2" points="166,82 153,98 165,98 164,108 177,92 165,92 166,82" fill="#C084FC" />
-          <polygon class="hero__energy-spark hero__energy-spark--3" points="151,20 141,32 150,32 149,40 159,28 150,28 151,20" fill="#06B6D4" />
-        </svg>
+      <div class="hero__stage" data-js="hero-stage">
+        <span class="hero__watermark" aria-hidden="true">60HE</span>
+        <div class="hero__orbit" aria-hidden="true"></div>
+        <div class="hero__product" data-js="hero-product">
+          <img data-js="hero-image" src="assets/images/kb-wooting-60he.png" width="1280" height="720" alt="Wooting 60HE compact keyboard with backlit keys" fetchpriority="high" />
+        </div>
+        <div class="hero__annotation"><span class="hero__annotation-line"></span><span data-js="hero-feature">Analog precision.<br>Compact by design.</span></div>
+        <a class="hero__product-link" href="#product/kb-wooting-60he" data-js="hero-detail">
+          <span><small>In the spotlight</small><strong data-js="hero-name">Wooting 60HE</strong></span>
+          <span class="hero__product-price" data-js="hero-price">$199</span>
+          <span class="hero__round-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+      <div class="hero__bottom">
+        <span class="hero__edition">The performance collection</span>
+        <div class="hero__choices" role="group" aria-label="Featured keyboard">
+          <button class="hero__choice" data-hero-product="kb-wooting-60he" aria-pressed="true">Wooting 60HE</button>
+          <button class="hero__choice" data-hero-product="kb-keychron-q1-pro" aria-pressed="false">Keychron Q1 Pro</button>
+          <button class="hero__choice" data-hero-product="kb-nuphy-air75" aria-pressed="false">NuPhy Air75</button>
+        </div>
+        <a href="#main-content" class="hero__scroll" aria-label="Scroll to collection">Scroll to explore <span aria-hidden="true">↓</span></a>
       </div>
     </div>
   </section>
 
+  <div class="brand-strip" aria-label="Featured brands">
+    <div class="container brand-strip__inner"><span class="brand-strip__caption">Good company<br>for your desk.</span><span class="brand-strip__name brand-strip__name--keychron">Keychron</span><span class="brand-strip__name">wooting</span><span class="brand-strip__name brand-strip__name--logitech">logitech G</span><span class="brand-strip__name">NuPhy</span><span class="brand-strip__name brand-strip__name--audeze">AUDEZE</span></div>
+  </div>
+
   <main class="main" id="main-content" role="main">
     <div class="container">
+      <div class="collection-heading"><h2>Find your edge.</h2><p>Small details. Noticeable differences.<br>Find the gear that feels like you.</p></div>
+      <div class="collection-tabs" role="group" aria-label="Collection category">
+        <button data-collection="all" aria-pressed="true">All gear <span>12</span></button>
+        <button data-collection="keyboards" aria-pressed="false">Keyboards <span>4</span></button>
+        <button data-collection="mice" aria-pressed="false">Mice <span>4</span></button>
+        <button data-collection="headsets" aria-pressed="false">Audio <span>4</span></button>
+        <button class="collection-tabs__saved" data-js="saved-tab" aria-pressed="false">Saved <span data-js="saved-tab-count">0</span></button>
+      </div>
       <div class="main__layout">
 
         <aside
@@ -419,7 +411,7 @@
             <div class="filter-group__body filter-group__body--always-open">
               <label class="filter-toggle-switch" for="filter-rgb">
                 <span class="filter-toggle-switch__text">RGB only</span>
-                <div class="filter-toggle-switch__track" aria-hidden="true">
+                <div class="filter-toggle-switch__track">
                   <input
                     class="filter-toggle-switch__input"
                     type="checkbox"
@@ -552,79 +544,54 @@
     </div>
   </main>
 
+  <section class="setup" id="setup" aria-labelledby="setup-title">
+    <div class="container setup__inner">
+      <div class="setup__intro"><div><p class="setup__kicker">Your desk. Your rules.</p><h2 id="setup-title">Better together.</h2></div><p>Find your perfect combination.<br>Three essentials. One setup that's yours.</p></div>
+      <div class="setup__layout">
+        <div class="setup__scene" aria-label="Your selected setup">
+          <div class="setup__deskmat" aria-hidden="true"><span>CyberGear</span></div>
+          <img class="setup__item setup__item--keyboard" data-setup-image="keyboards" src="assets/images/kb-wooting-60he.png" alt="Wooting 60HE" width="1280" height="720" loading="lazy" />
+          <img class="setup__item setup__item--mouse" data-setup-image="mice" src="assets/images/ms-razer-viper-v3-pro.png" alt="Razer Viper V3 Pro" width="600" height="600" loading="lazy" />
+          <img class="setup__item setup__item--audio" data-setup-image="headsets" src="assets/images/hs-hyperx-cloud-alpha.png" alt="HyperX Cloud Alpha Wireless" width="600" height="600" loading="lazy" />
+          <span class="setup__scene-note">Made for the way you play.</span>
+        </div>
+        <div class="setup__controls">
+          <div class="setup__presets" role="group" aria-label="Setup presets"><button data-setup-preset="performance" aria-pressed="true">Performance</button><button data-setup-preset="studio" aria-pressed="false">Studio</button><button data-setup-preset="everyday" aria-pressed="false">Everyday</button></div>
+          <label class="setup__field"><span>Keyboard</span><select data-setup-select="keyboards" aria-label="Setup keyboard"></select></label>
+          <label class="setup__field"><span>Mouse</span><select data-setup-select="mice" aria-label="Setup mouse"></select></label>
+          <label class="setup__field"><span>Audio</span><select data-setup-select="headsets" aria-label="Setup audio"></select></label>
+          <div class="setup__total"><span>Your complete setup <small>3 items · free demo shipping</small></span><strong data-js="setup-total" aria-live="polite">$557</strong></div>
+          <button class="studio-button studio-button--violet" data-js="setup-add">Add setup to cart <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="studio-note container" aria-labelledby="studio-note-title"><h2 id="studio-note-title">A little more considered.<br>A lot more you.</h2><div><p>A satisfying keystroke. A mouse that fits just right. Sound that pulls you in. We bring together gear worth making room for.</p><a href="#main-content" class="studio-text-link">Find your next essential <span aria-hidden="true">↗</span></a></div></section>
+
   <footer class="footer" role="contentinfo">
     <div class="container footer__inner">
-
       <div class="footer__top">
         <div class="footer__brand">
-          <a href="./" class="footer__logo" aria-label="CyberGear home">
-            <span class="footer__logo-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-              </svg>
-            </span>
-            <span class="footer__logo-text">Cyber<em>Gear</em></span>
-          </a>
-          <p class="footer__tagline">
-            Pro-grade peripherals for gamers, engineers and creators who demand the best.
-          </p>
-          <div class="footer__socials">
-            <a href="#" class="footer__social-link" aria-label="Twitter/X">𝕏</a>
-            <a href="#" class="footer__social-link" aria-label="Discord">⌨</a>
-            <a href="#" class="footer__social-link" aria-label="GitHub">⬡</a>
-            <a href="#" class="footer__social-link" aria-label="YouTube">▶</a>
-          </div>
+          <a href="./" class="footer__logo" aria-label="CyberGear home"><span class="footer__logo-text">CyberGear<span class="footer__brand-dot">?</span></span></a>
+          <p class="footer__tagline">Good gear. Great feeling.</p>
+          <p class="footer__demo">An independent storefront concept.<br>Built to be explored.</p>
         </div>
-
-        <div class="footer__nav-col">
-          <div class="footer__nav-title">Shop</div>
-          <ul class="footer__nav-list">
-            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="all">All products</a></li>
-            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="keyboards">Keyboards</a></li>
-            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="mice">Mice</a></li>
-            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="headsets">Headsets</a></li>
-            <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="all" data-sort="new">New arrivals</a></li>
-          </ul>
-        </div>
-
-        <div class="footer__nav-col">
-          <div class="footer__nav-title">Support</div>
-          <ul class="footer__nav-list">
-            <li><a href="#" class="footer__nav-link">Shipping & returns</a></li>
-            <li><a href="#" class="footer__nav-link">FAQ</a></li>
-            <li><a href="#" class="footer__nav-link">Contact us</a></li>
-            <li><a href="#" class="footer__nav-link">Warranty</a></li>
-          </ul>
-        </div>
-
-        <div class="footer__nav-col">
-          <div class="footer__nav-title">About</div>
-          <ul class="footer__nav-list">
-            <li><a href="#" class="footer__nav-link">Our story</a></li>
-            <li><a href="#" class="footer__nav-link">Press kit</a></li>
-            <li><a href="#" class="footer__nav-link">Careers</a></li>
-            <li><a href="#" class="footer__nav-link">Blog</a></li>
-          </ul>
-        </div>
+        <div class="footer__nav-col"><div class="footer__nav-title">The collection</div><ul class="footer__nav-list">
+          <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="all">Shop all</a></li>
+          <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="keyboards">Keyboards</a></li>
+          <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="mice">Mice</a></li>
+          <li><a href="#main-content" class="footer__nav-link" data-js="footer-category" data-category="headsets">Audio</a></li>
+        </ul></div>
+        <div class="footer__nav-col"><div class="footer__nav-title">Good to know</div><ul class="footer__nav-list">
+          <li><button class="footer__nav-link" data-info="shipping">Shipping & returns</button></li>
+          <li><button class="footer__nav-link" data-info="faq">Questions & answers</button></li>
+          <li><button class="footer__nav-link" data-info="about">About this store</button></li>
+          <li><a href="#setup" class="footer__nav-link">Build your setup</a></li>
+        </ul></div>
+        <div class="footer__signoff"><span>Feel the difference.</span><a href="#hero-title" aria-label="Back to top">?</a></div>
       </div>
-
-      <div class="footer__divider"></div>
-
-      <div class="footer__bottom">
-        <p class="footer__copy">
-          Demo project by <a href="https://github.com/shevdevworks" class="footer__copy-link" target="_blank" rel="noopener">ShevDevWorks</a> — Vanilla JS · HTML5 · CSS3
-        </p>
-        <div class="footer__badge">
-          <span class="footer__badge-dot" aria-hidden="true"></span>
-          All systems operational
-        </div>
-        <nav class="footer__legal" aria-label="Legal links">
-          <a href="#" class="footer__legal-link">Privacy policy</a>
-          <a href="#" class="footer__legal-link">Terms of service</a>
-          <a href="#" class="footer__legal-link">Cookies</a>
-        </nav>
-      </div>
-
+      <div class="footer__bottom"><p class="footer__copy">CyberGear ? 2026 ? A demo by <a href="https://github.com/shevdevworks" target="_blank" rel="noopener">ShevDevWorks</a></p><span class="footer__bottom-note">Designed for the details.</span><button class="footer__legal-link" data-info="privacy">Privacy & demo information</button></div>
     </div>
   </footer>
 
@@ -741,7 +708,7 @@
     <div class="checkout-modal__backdrop" data-js="checkout-close" aria-hidden="true"></div>
     <div class="checkout-modal__panel">
       <div class="checkout-modal__header">
-        <h2 class="checkout-modal__heading" id="checkout-heading">Checkout</h2>
+        <h2 class="checkout-modal__heading" id="checkout-heading">Demo checkout</h2>
         <button class="cart__close-btn" data-js="checkout-close" aria-label="Close">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M3 3l14 14M17 3 3 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -756,6 +723,7 @@
         action="javascript:void(0)"
         novalidate
       >
+        <p class="checkout-demo-note">Try the complete experience with sample details. No payment is taken and no order is sent.</p>
         <fieldset class="checkout-form__fieldset">
           <legend class="checkout-form__legend">Contact details</legend>
 
@@ -886,7 +854,7 @@
               />
               <span class="delivery-option__body">
                 <span class="delivery-option__title">Courier</span>
-                <span class="delivery-option__price">from $5</span>
+                <span class="delivery-option__price" data-js="courier-price">$5</span>
               </span>
             </label>
             <label class="delivery-option" for="delivery-pickup">
@@ -942,9 +910,9 @@
 
       <div class="checkout-success" data-js="checkout-success" hidden>
         <div class="checkout-success__icon" aria-hidden="true">✓</div>
-        <h3 class="checkout-success__title">Order placed!</h3>
+        <h3 class="checkout-success__title">You're all set.</h3>
         <p class="checkout-success__text">
-          We'll contact you within an hour to confirm your order.
+          Your demo order is complete. No payment was taken and nothing will be shipped.
         </p>
         <p class="checkout-success__number">
           Order number: <strong data-js="order-number">#CG-0001</strong>
@@ -963,6 +931,8 @@
     aria-label="Notifications"
   ></div>
 
+  <dialog class="product-dialog" data-js="product-dialog" aria-labelledby="product-detail-title"><div data-js="product-detail"></div></dialog>
+  <dialog class="info-dialog" data-js="info-dialog" aria-labelledby="info-title"><button class="dialog-close" data-js="info-close" aria-label="Close information">×</button><h2 id="info-title"></h2><div data-js="info-body"></div></dialog>
   <script type="module" src="js/app.js"></script>
 
 </body>

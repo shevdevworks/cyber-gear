@@ -1,108 +1,66 @@
-# CyberGear
+﻿# CyberGear — Performance Studio
 
-**Custom peripherals for those who don't compromise.**
+A product-led storefront for keyboards, mice and audio. Graphite product stages, silver catalog surfaces and restrained motion, built with semantic HTML, CSS and vanilla JavaScript modules.
 
-A front-end e-commerce demo — full product catalog, filtering, cart, and checkout — built with **zero frameworks and zero build step**. Just semantic HTML, modern CSS, and vanilla ES modules.
+[Live demo](https://shevdevworks.github.io/cyber-gear/)
 
-This is a portfolio project. The goal was to see how far a production-shaped UI — state, filtering, validation, custom ARIA controls — gets without React, Vue, or a bundler.
+![CyberGear storefront](assets/images/og-cover.png)
 
-![CyberGear preview](assets/images/og-cover.png)
+## The experience
 
-**[Live Demo →](https://shevdevworks.github.io/cyber-gear/)**
+- Animated product spotlight with three featured keyboards and pointer-responsive perspective.
+- Search, category/connection/RGB/price filters, sorting and grid/list views.
+- Product details with shareable hash URLs, image zoom, specifications and related gear.
+- Saved products persisted in local storage, with a dedicated collection view.
+- Interactive setup builder: three presets, individually selectable components, live totals and one-click addition to the cart.
+- Persistent cart, quantity controls and percentage/fixed demo promo codes.
+- Simulated checkout with field validation, country dialing codes, courier/pickup options and an explicit demo confirmation.
+- Free demo courier delivery at $200 or more after discounts; otherwise $5. Pickup is free.
+- Keyboard-accessible dialogs and drawers, managed focus and reduced-motion support.
 
----
+## Run locally
 
-## Why this project exists
+No dependencies or build step are required. Serve the repository over HTTP:
 
-Most "vanilla JS" portfolio pieces are a single `index.html` with a `<script>` tag. This one is deliberately built like a small real app instead:
-
-- a **centralized store** (pub/sub, channel-based subscriptions, immutable updates) instead of scattered DOM state
-- **pure filtering/sorting functions** kept separate from rendering, so business logic doesn't depend on the DOM
-- **event delegation** everywhere instead of per-card listeners
-- custom controls (listbox, collapsible sections, modal) built on real ARIA patterns — `role`, `aria-selected`, `aria-expanded`, arrow keys, Home/End, Enter, Escape — rather than a mouse-only skin
-- a token-based design system in CSS custom properties, not scattered magic values
-
-## Features
-
-**Catalog**
-- Filter by category, connectivity, RGB, and price range (dual slider + numeric inputs, kept in sync)
-- Live search, sorting (popularity, rating, price, newest), grid/list view toggle
-- Collapsible filter groups with animated height transitions
-- Mobile filters drawer, sticky header with scroll state
-
-**Cart**
-- Slide-out drawer, quantity controls, promo codes (percentage and fixed-amount), persisted to `localStorage`
-- Cart state survives page reloads
-
-**Checkout**
-- Multi-field form with live validation (name, phone, email, address) and per-field error states
-- Custom country-code selector — a real `listbox` widget with flag icons, full keyboard navigation (arrow keys, Home/End, Enter, Escape), and screen-reader labels — not just a styled `<select>`
-- Delivery method toggle (courier / pickup) that conditionally requires the address field and recalculates the total
-- Simulated async submission with loading and error states
-
-**Design system**
-- "Toxic Violet" dark theme — deep-space backgrounds, violet/cyan accents — defined entirely as CSS custom properties in [`css/variables.css`](css/variables.css)
-- `:focus-visible` states throughout and `prefers-reduced-motion`–friendly transitions, both in [`css/base.css`](css/base.css)
-
-## Tech stack
-
-| | |
-|---|---|
-| Markup | Semantic HTML5, ARIA where a native element wasn't enough |
-| Styles | CSS3 — custom properties, Grid/Flexbox, no preprocessor |
-| Logic | Vanilla JavaScript (ES2022+), native ES modules — no bundler, no framework, no dependencies |
-| State | Custom pub/sub store (`store.js`) — Redux-shaped, framework-free |
-| Persistence | `localStorage` |
-
-Nothing to install, nothing to build. The whole app ships as static files.
-
-## Project structure
-
-```
-cyber-gear/
-├── index.html                 # Single-page markup
-├── css/
-│   ├── variables.css          # Design tokens — colors, spacing, shadows
-│   ├── base.css                # Reset + global element styles
-│   └── components/            # One stylesheet per UI component
-├── js/
-│   ├── app.js                  # Entry point — wires up every feature on load
-│   ├── modules/
-│   │   ├── store.js            # Centralized state (cart, filters, UI, promo)
-│   │   ├── catalog.js          # Filtering/sorting (pure) + rendering (DOM)
-│   │   ├── cart.js             # Cart drawer
-│   │   └── checkout.js         # Checkout modal, validation, phone mask
-│   ├── data/products.js        # Product catalog (mock data)
-│   └── utils/                  # Small pure helpers (formatting, storage, DOM)
-└── assets/
-    └── images/
-        ├── flags/               # Country flags for the phone selector
-        └── *.png                # Product photos, OG cover
+```sh
+python -m http.server 4173 --bind 127.0.0.1
 ```
 
-## Running locally
+Open [localhost:4173](http://127.0.0.1:4173). ES modules require HTTP; opening the HTML directly as a file will not work. Hard-refresh after editing if your static server or browser caches modules.
 
-No build step — any static file server works:
+## Verification
 
-```bash
-git clone https://github.com/shevdevworks/cyber-gear.git
-cd cyber-gear
-npx serve .
-# or: python -m http.server, or the VS Code "Live Server" extension
+Run the state and filtering regression tests with Node.js:
+
+```sh
+node --test tests/store.test.mjs
 ```
 
-ES modules require serving over `http(s)://` — opening `index.html` directly via `file://` will fail on the `import` statements.
+The tests cover saved-item persistence, saved/category filter combinations, setup quantities, stock restrictions, quantity limits, percentage/fixed promo calculations and non-mutating sorting.
 
-## Known limitations
+Browser checks cover the main shopping flow, mobile filters, focus containment, product navigation, reduced motion and viewport widths from 320 to 1440 px.
 
-This is a front-end demo — there's no backend, so a few things are intentionally mocked or left as future work:
+## Structure
 
-- Checkout "submission" is simulated (`setTimeout`), no real order is created
-- The wishlist button toggles its visual state but isn't persisted yet (tracked with a `TODO` in `catalog.js`)
-- Filter persistence helpers exist in `storage.js` but aren't wired up — only the cart currently survives a reload
+```text
+index.html                  Page, setup builder, cart and checkout markup
+css/variables.css           Shared design tokens
+css/components/             Component styles and studio layout
+js/app.js                   Application wiring, navigation and layer management
+js/modules/studio.js        Spotlight, setup builder, saved view and product dialogs
+js/modules/catalog.js       Filtering, sorting and keyed card rendering
+js/modules/store.js         State, cart, wishlist and promo calculations
+js/modules/cart.js          Cart rendering and controls
+js/modules/checkout.js      Validation and simulated order flow
+js/data/products.js         Sample catalog
+js/utils/                   Formatting, storage and notifications
+tests/store.test.mjs        State and filtering regression tests
+```
 
-## Author
+## Demo boundaries
 
-Built by [ShevDevWorks](https://github.com/shevdevworks) as a portfolio piece.
+This is an independent portfolio concept. There is no backend, payment provider, real order creation or fulfillment. Checkout fields stay in browser memory and are not submitted to a server. Use sample details when testing.
 
-This project has no license attached — it's a demo, not a package meant for reuse.
+Cart and saved product IDs remain in this browser's local storage. Filters reset on reload. Product imagery, names and trademarks belong to their respective owners; prices, ratings, availability and specifications are sample data. Google Fonts is the only external runtime asset service.
+
+Built by [ShevDevWorks](https://github.com/shevdevworks).

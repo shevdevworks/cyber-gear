@@ -5,7 +5,20 @@
 const STORAGE_KEYS = {
   CART: 'cybergear:cart',
   FILTERS: 'cybergear:filters',
+  WISHLIST: 'cybergear:wishlist',
 };
+
+export function loadWishlist() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.WISHLIST) ?? '[]');
+    return Array.isArray(saved) ? [...new Set(saved.filter(id => typeof id === 'string'))] : [];
+  } catch { return []; }
+}
+
+export function saveWishlist(ids) {
+  try { localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(ids)); }
+  catch { /* Keep the current session usable when storage is unavailable. */ }
+}
 
 // --------------------------------------------------------------------------
 // CART STORAGE

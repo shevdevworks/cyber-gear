@@ -542,8 +542,12 @@
     /* visibility keeps the closed drawer out of Tab order / screen readers;
        it flips only after the slide-out finishes */
     visibility: hidden;
+    transition: none;
+  }
+
+  .filters--animated {
     transition:
-      transform  var(--duration-drawer) var(--ease-out-expo),
+      transform var(--duration-drawer) var(--ease-out-expo),
       visibility 0s linear var(--duration-drawer);
   }
 

@@ -1,501 +1,257 @@
-/* ==========================================================================
-   CyberGear — Header Component
-   Sticky header with backdrop-blur, logo, navigation, cart.
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   HEADER — base structure
--------------------------------------------------------------------------- */
-
-.header {
+/* Performance Studio — quiet navigation above the product stage. */
+.header  {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-
-  /*
-    Why sticky instead of fixed?
-    fixed pulls the element out of the flow — you have to manually add padding-top to main.
-    sticky stays in the flow until it "sticks" — main automatically
-    accounts for the header height. Zero magic numbers.
-  */
-
-  /* Initial state: almost transparent */
-  background: rgba(13, 15, 20, 0.6);
-
-  /*
-    backdrop-filter: blur() — "frosted glass".
-    Page content blurs UNDER the header on scroll.
-    saturate(180%) boosts the saturation of what's visible through the glass — an effect
-    like in macOS / iOS. Looks significantly more premium than just opacity.
-
-    IMPORTANT: only works if the parent has no overflow: hidden.
-    Degrades gracefully — in older browsers it's just a semi-transparent background.
-  */
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-
-  /* Bottom border — appears on scroll via JS (class .header--scrolled) */
-  border-bottom: 1px solid transparent;
-
-  transition:
-    background     var(--duration-normal) var(--ease-out-expo),
-    border-color   var(--duration-normal) var(--ease-out-expo),
-    box-shadow     var(--duration-normal) var(--ease-out-expo);
+  background: #191a1ff5;
+  color: #eeedf4;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid #ffffff12;
 }
 
-/*
-  JS adds this class when window.scrollY > 10.
-  The header "compacts" — becomes less transparent and gets a shadow.
-*/
-.header--scrolled {
-  background: rgba(13, 15, 20, 0.92);
-  border-color: var(--color-border-subtle);
-  box-shadow: var(--shadow-header);
-}
-
-/* --------------------------------------------------------------------------
-   HEADER INNER — internal layout
--------------------------------------------------------------------------- */
-
-.header__inner {
+.header__inner  {
+  min-height: 82px;
   display: flex;
   align-items: center;
-  gap: var(--space-6);
-  height: 64px; /* Fixed height — important for sticky calculations */
+  gap: 40px;
 }
 
-/* --------------------------------------------------------------------------
-   LOGO
--------------------------------------------------------------------------- */
-
-.header__logo {
-  display: flex;
+.header__logo  {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  flex-shrink: 0; /* Logo doesn't shrink */
-  text-decoration: none;
-
-  /* Override the focus-visible from base.css, draw our own */
-  border-radius: var(--radius-sm);
-
-  transition: opacity var(--duration-fast) var(--ease-out-expo);
+  gap: 9px;
+  flex-shrink: 0;
 }
 
-.header__logo:hover {
-  opacity: 0.85;
+.header__logo-icon  {
+  color: #b29df4;
+  font-size: 22px;
 }
 
-.header__logo-icon {
-  font-size: 1.4rem;
-  line-height: 1;
-  color: var(--color-accent);
-  display: inline-block;
-  transition: transform var(--duration-slow) var(--ease-out-expo);
-  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.7));
+.header__logo-text  {
+  font: 600 25px/1 var(--font-display);
+  letter-spacing: -.065em;
 }
 
-.header__logo:hover .header__logo-icon {
-  transform: rotate(15deg) scale(1.1);
-  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.9));
+.header__logo-accent  {
+  color: #eeedf4;
 }
 
-.header__logo-text {
-  font-family: var(--font-display);
-  font-size: var(--text-md);
-  font-weight: 800; /* Extra Bold — maximum weight for Syne */
-  letter-spacing: var(--tracking-tight);
-  color: var(--color-text-primary);
-  line-height: 1;
-}
-
-.header__logo-accent {
-  background: linear-gradient(
-    135deg,
-    var(--color-accent-dim) 0%,
-    var(--color-accent) 50%,
-    var(--color-accent-blue) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* --------------------------------------------------------------------------
-   NAV — category navigation
--------------------------------------------------------------------------- */
-
-.header__nav {
-  flex: 1; /* Takes all space between logo and action buttons */
+.header__nav  {
+  flex: 1;
   min-width: 0;
 }
 
-.header__nav-list {
+.header__nav-list  {
   display: flex;
+  gap: 24px;
   align-items: center;
-  gap: var(--space-1);
-  list-style: none;
+  justify-content: center;
 }
 
-.header__nav-link {
+.header__nav-link  {
+  font-size: 12px;
+  font-weight: 450;
+  color: #a7a6af;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   position: relative;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  border-radius: var(--radius-md);
   white-space: nowrap;
-
-  transition:
-    color      var(--duration-fast) var(--ease-out-expo),
-    background var(--duration-fast) var(--ease-out-expo);
+  transition: color 200ms;
 }
 
-.header__nav-link:hover {
-  color: var(--color-text-secondary);
-  background: var(--color-bg-elevated);
+.header__nav-link:hover, .header__nav-link[aria-current='true']  {
+  color: #fff;
 }
 
-/*
-  Active link — neon underline via the ::after pseudo-element.
-  Why ::after instead of text-decoration?
-  Because text-decoration cannot be animated and is hard to customize.
-  ::after gives full control: color, thickness, entrance animation.
-*/
-.header__nav-link--active,
-.header__nav-link[aria-current="true"] {
-  color: var(--color-text-primary);
-  background: var(--color-accent-ghost);
-}
-
-.header__nav-link::after {
+.header__nav-link[aria-current='true']::after  {
   content: '';
   position: absolute;
   bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: calc(100% - var(--space-6));
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-accent-dim),
-    var(--color-accent),
-    var(--color-accent-blue),
-    transparent
-  );
-  border-radius: var(--radius-full);
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
-  transition: transform var(--duration-normal) var(--ease-out-expo);
+  width: 4px;
+  height: 4px;
+  background: #b7a2ff;
+  border-radius: 50%;
+  left: calc(50% - 2px);
 }
 
-.header__nav-link--active::after,
-.header__nav-link[aria-current="true"]::after,
-.header__nav-link:hover::after {
-  transform: translateX(-50%) scaleX(1);
+.header__setup-link  {
+  margin-left: 15px;
+  padding-left: 24px;
+  border-left: 1px solid #ffffff20;
+  min-height: 22px;
 }
 
-/* --------------------------------------------------------------------------
-   HEADER ACTIONS — buttons on the right
--------------------------------------------------------------------------- */
-
-.header__actions {
+.header__actions  {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 6px;
   flex-shrink: 0;
 }
 
-/* Base action button (search) */
-.header__action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  color: var(--color-text-muted);
-  border-radius: var(--radius-md);
-
-  transition:
-    color      var(--duration-fast) var(--ease-out-expo),
-    background var(--duration-fast) var(--ease-out-expo);
+.header__action-btn, .header__cart-btn  {
+  width: 40px;
+  height: 44px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: #b9b7c3;
+  border-radius: 8px;
+  transition: background 200ms, color 200ms;
 }
 
-.header__action-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+.header__action-btn:hover, .header__cart-btn:hover  {
+  color: #fff;
+  background: #ffffff0b;
 }
 
-.header__action-icon {
-  flex-shrink: 0;
+.header__action-btn[aria-pressed='true']  {
+  color: #c4b2ff;
 }
 
-/* --------------------------------------------------------------------------
-   CART BUTTON — cart button with an indicator
--------------------------------------------------------------------------- */
-
-.header__cart-btn {
-  position: relative; /* Reference point for the absolute badge */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  color: var(--color-text-muted);
-  border-radius: var(--radius-md);
-
-  transition:
-    color      var(--duration-fast) var(--ease-out-expo),
-    background var(--duration-fast) var(--ease-out-expo);
-}
-
-.header__cart-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
-}
-
-/* Item count */
-.header__cart-count {
+.header__cart-count  {
   position: absolute;
-  top: 2px;
-  right: 2px;
-
-  /* Minimum size for one character, stretches for two-digit numbers */
+  top: 1px;
+  right: 0;
+  display: grid;
+  place-items: center;
   min-width: 17px;
   height: 17px;
-  padding-inline: 3px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
+  padding: 0 3px;
+  border-radius: 50%;
+  background: #b9a5ff;
+  color: #211d30;
   font-size: 10px;
-  font-weight: var(--font-weight-bold);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  color: var(--color-text-inverse);
-
-  background: var(--color-accent);
-  border-radius: var(--radius-full);
-
-  /*
-    A thin outline using the background color creates a "gap" between the badge and the icon.
-    It looks like a separate layer — without this the badge blends into the icon.
-  */
-  box-shadow:
-    0 0 0 2px var(--color-bg-base),
-    0 0 10px rgba(168, 85, 247, 0.6);
-
-  /* Badge entrance */
-  transform-origin: center;
-  animation: badgePop var(--duration-normal) var(--ease-spring) both;
+  font-weight: 700;
 }
 
-/*
-  JS adds the class .header__cart-count--updated for ~300ms
-  every time the cart changes. The badge pulses — signaling an update.
-*/
-.header__cart-count--updated {
-  animation: badgePulse var(--duration-slow) var(--ease-spring) both;
+.header__cart-count--updated  {
+  animation: count-update 360ms ease;
 }
 
-@keyframes badgePop {
-  0%   { transform: scale(0); opacity: 0; }
-  60%  { transform: scale(1.25); }
-  100% { transform: scale(1);  opacity: 1; }
+.saved-indicator  {
+  width: 5px;
+  height: 5px;
+  background: #b9a5ff;
+  border-radius: 50%;
+  position: absolute;
+  top: 7px;
+  right: 5px;
 }
 
-@keyframes badgePulse {
-  0%   { transform: scale(1);    box-shadow: 0 0 0 2px var(--color-bg-base), 0 0 10px rgba(168, 85, 247, 0.6); }
-  30%  { transform: scale(1.35); box-shadow: 0 0 0 2px var(--color-bg-base), 0 0 20px rgba(168, 85, 247, 0.9); }
-  60%  { transform: scale(0.9);  }
-  100% { transform: scale(1);    box-shadow: 0 0 0 2px var(--color-bg-base), 0 0 10px rgba(168, 85, 247, 0.6); }
+.header__search-panel  {
+  border-top: 1px solid #ffffff12;
+  padding-block: 12px;
+  animation: slideInUp 200ms both;
 }
 
-/* --------------------------------------------------------------------------
-   SEARCH PANEL — expandable search bar
--------------------------------------------------------------------------- */
-
-.header__search-panel {
-  padding-block: var(--space-3);
-  border-top: 1px solid var(--color-border-subtle);
-
-  animation: slideInUp var(--duration-normal) var(--ease-out-expo) both;
-}
-
-.header__search-wrap {
+.header__search-wrap  {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.header__search-icon {
+.header__search-icon  {
   position: absolute;
-  left: var(--space-4);
-  color: var(--color-text-muted);
-  pointer-events: none;
-  flex-shrink: 0;
+  left: 16px;
+  color: #b3afbf;
 }
 
-.header__search-input {
+.header__search-input  {
   width: 100%;
-  padding: var(--space-3) var(--space-4);
-  padding-left: calc(var(--space-4) + 18px + var(--space-3)); /* icon + gap */
-  padding-right: var(--space-12);
-
-  font-size: var(--text-base);
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-
-  transition:
-    border-color var(--duration-fast) var(--ease-out-expo),
-    box-shadow   var(--duration-fast) var(--ease-out-expo);
-
-  /* Remove the native clear button in Chrome */
-  -webkit-appearance: none;
+  padding: 12px 60px 12px 48px;
+  background: #25262c;
+  color: #f2f0f6;
+  border: 1px solid #45434f;
+  border-radius: 6px;
+  font-size: 16px;
 }
 
-.header__search-input::placeholder {
-  color: var(--color-text-muted);
+.header__search-input::placeholder  {
+  color: #a19daa;
 }
 
-.header__search-input:focus-visible {
-  outline: none;
-  border-color: var(--color-accent-dim);
-  box-shadow: 0 0 0 3px var(--color-accent-ghost);
-}
-
-/* ESC hint */
-.header__search-hint {
+.header__search-hint  {
   position: absolute;
-  right: var(--space-4);
-  padding: 2px var(--space-2);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-sm);
-  pointer-events: none;
+  right: 16px;
+  font-size: 10px;
+  color: #b3afbf;
 }
 
-/* --------------------------------------------------------------------------
-   RESPONSIVE
--------------------------------------------------------------------------- */
+@keyframes count-update  {
+  50%  {
+    transform: scale(1.2);
+  }
+}
 
-/*
-  Tablet / mobile: the category nav used to be hidden completely, leaving
-  phones with no way to switch categories except the filters drawer.
-  Now it drops to a second row of horizontally scrollable chips.
-*/
-@media (max-width: 768px) {
-  .header__inner {
+@media (max-width: 1100px)  {
+  .header__inner  {
+    gap: 24px;
+  }
+  .header__nav-list  {
+    gap: 17px;
+  }
+  .header__setup-link  {
+    margin-left: 0;
+    padding-left: 16px;
+  }
+}
+
+@media (max-width: 900px)  {
+  .header__setup-link  {
+    display: none;
+  }
+  .header__nav-list  {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 700px)  {
+  .header__inner  {
     flex-wrap: wrap;
-    height: auto;
-    column-gap: var(--space-4);
-    row-gap: 0;
-    padding-block: var(--space-2);
+    gap: 0;
+    min-height: 64px;
+    padding-top: 6px;
   }
-
-  .header__logo {
-    min-height: 44px;
+  .header__logo-text  {
+    font-size: 23px;
   }
-
-  .header__actions {
+  .header__actions  {
     margin-left: auto;
-    gap: var(--space-1);
+    gap: 1px;
   }
-
-  .header__action-btn,
-  .header__cart-btn {
-    width: 44px;
-    height: 44px;
-  }
-
-  .header__nav {
-    order: 3;
+  .header__nav  {
     flex: 1 0 100%;
-    /* Bleed to the screen edges so chips scroll under the gutter, not get cut at it */
-    margin-inline: calc(-1 * var(--container-pad));
-    padding-inline: var(--container-pad);
-    padding-block: var(--space-1) var(--space-1);
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    order: 3;
   }
-
-  .header__nav::-webkit-scrollbar {
+  .header__nav-list  {
+    justify-content: flex-start;
+    gap: 26px;
+  }
+  .header__nav-link  {
+    min-height: 40px;
+    font-size: 11px;
+  }
+  .header__nav-link[aria-current='true']::after  {
+    bottom: 3px;
+  }
+  .header__action-btn, .header__cart-btn  {
+    width: 36px;
+  }
+  .header__search-hint  {
     display: none;
-  }
-
-  .header__nav-list {
-    gap: var(--space-2);
-  }
-
-  .header__nav-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 36px;
-    padding: var(--space-2) var(--space-4);
-    color: var(--color-text-secondary);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--radius-full);
-  }
-
-  .header__nav-link--active,
-  .header__nav-link[aria-current="true"] {
-    color: var(--color-text-primary);
-    border-color: var(--color-border-accent);
-    background: var(--color-accent-ghost);
-  }
-
-  /* The neon underline doesn't fit a pill shape */
-  .header__nav-link::after {
-    display: none;
-  }
-
-  /* "ESC" means nothing on a touch keyboard, and it eats input width */
-  .header__search-hint {
-    display: none;
-  }
-
-  .header__search-input {
-    padding-right: var(--space-4);
   }
 }
 
-@media (max-width: 480px) {
-  .header__logo-text {
-    font-size: 1.125rem;
+@media (max-width: 360px)  {
+  .header__logo-text  {
+    font-size: 21px;
   }
-}
-
-/* Small phones (iPhone SE 1st gen, older Androids) — keep logo and icons on one row */
-@media (max-width: 360px) {
-  .header__inner {
-    column-gap: var(--space-2);
+  .header__logo-icon  {
+    font-size: 18px;
   }
-
-  .header__logo-text {
-    font-size: 1rem;
-  }
-
-  .header__action-btn,
-  .header__cart-btn {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-/* Hover-only effects shouldn't stick after a tap on touch screens */
-@media (hover: none) {
-  .header__nav-link:hover {
-    background: transparent;
-  }
-
-  .header__nav-link--active:hover,
-  .header__nav-link[aria-current="true"]:hover {
-    background: var(--color-accent-ghost);
+  .header__nav-list  {
+    gap: 23px;
   }
 }

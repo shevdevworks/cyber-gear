@@ -38,7 +38,15 @@ function renderCartList(items) {
   if (DOM.emptyEl)   DOM.emptyEl.hidden   = !isEmpty;
   if (DOM.summaryEl) DOM.summaryEl.hidden = isEmpty;
 
-  if (isEmpty) return; 
+  if (isEmpty) {
+    DOM.listEl.replaceChildren();
+    return;
+  }
+
+  const focusedControl = DOM.listEl.contains(document.activeElement) ? {
+    productId: document.activeElement.closest('.cart-item')?.dataset.productId,
+    action: document.activeElement.dataset.js,
+  } : null;
 
   const fragment = document.createDocumentFragment();
 
@@ -86,6 +94,10 @@ function renderCartList(items) {
 
   DOM.listEl.innerHTML = '';
   DOM.listEl.appendChild(fragment);
+  if (focusedControl?.productId && focusedControl.action) {
+    const control = DOM.listEl.querySelector(`[data-product-id="${CSS.escape(focusedControl.productId)}"] [data-js="${CSS.escape(focusedControl.action)}"]`);
+    if (control && !control.disabled) control.focus({ preventScroll: true });
+  }
 }
 
 // --------------------------------------------------------------------------

@@ -21,7 +21,7 @@ import { formatPrice, calcDiscount, pluralizeItems, $, delegate } from '../utils
  * @param {string}    sortBy     — state.sortBy from store
  * @returns {Product[]}          — new filtered and sorted array
  */
-export function getFilteredProducts(products, filters, sortBy) {
+export function getFilteredProducts(products, filters, sortBy, wishlist = []) {
   /*
     .filter().sort() CHAIN — an elegant functional pipeline.
     Each step returns a new array, never mutating the previous one.
@@ -30,6 +30,7 @@ export function getFilteredProducts(products, filters, sortBy) {
     First filter (reduce array size), then sort (fewer comparisons).
   */
   const result = products
+    .filter(p => !filters.savedOnly || wishlist.includes(p.id))
     .filter(p => filterByCategory(p, filters))
     .filter(p => filterByConnectivity(p, filters))
     .filter(p => filterByRgb(p, filters))
@@ -194,22 +195,43 @@ export function renderCatalog(productsList) {
 
   if (emptyEl) emptyEl.hidden = true;
 
-  // Build all cards into a DocumentFragment first, then insert once —
-  // avoids one reflow per card
+  const previous = new Map([...grid.querySelectorAll('[data-product-id].product-card')]
+    .map(card => [card.dataset.productId, { card, rect: card.getBoundingClientRect() }]));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Reuse keyed cards so sorting keeps DOM state and focus intact.
   const fragment = document.createDocumentFragment();
 
   // Temporary container for parsing HTML string into DOM nodes
   const temp = document.createElement('div');
 
   productsList.forEach((product, index) => {
-    temp.innerHTML = createProductCard(product, index);
-    // appendChild moves the node (not copies it) — temp is empty again after this
-    fragment.appendChild(temp.firstElementChild);
+    let card = previous.get(product.id)?.card;
+    if (!card) {
+      temp.innerHTML = createProductCard(product, index);
+      card = temp.firstElementChild;
+    }
+    fragment.appendChild(card);
   });
 
   // One reflow instead of N
   grid.innerHTML = '';
   grid.appendChild(fragment);
+  if (!reduceMotion) {
+    [...grid.children].forEach((card, index) => {
+      const current = card.getBoundingClientRect();
+      if (current.top > innerHeight || current.bottom < 0) return;
+      const old = previous.get(card.dataset.productId)?.rect;
+      card.getAnimations().forEach(animation => animation.cancel());
+      if (old) {
+        const x = old.left - current.left;
+        const y = old.top - current.top;
+        if (x || y) card.animate([{ transform: `translate(${x}px, ${y}px)` }, { transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.16,1,.3,1)' });
+      } else {
+        card.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 350, delay: Math.min(index, 5) * 35, fill: 'backwards', easing: 'ease-out' });
+      }
+    });
+  }
 }
 
 /**
@@ -231,6 +253,7 @@ function createProductCard(product, index) {
   const formattedOldPrice = oldPrice ? formatPrice(oldPrice) : null;
   const starsHtml     = renderStars(rating);
   const categoryLabel = CATEGORY_LABELS[category] ?? category;
+  const saved = store.getState().wishlist.includes(id);
 
   /*
     Why class strings via ternary instead of classList?
@@ -263,11 +286,11 @@ function createProductCard(product, index) {
 
         <!-- Wishlist button -->
         <button
-          class="product-card__wishlist"
+          class="product-card__wishlist ${saved ? 'product-card__wishlist--active' : ''}"
           data-js="wishlist-toggle"
           data-product-id="${id}"
-          aria-label="Add ${name} to wishlist"
-          aria-pressed="false"
+          aria-label="${saved ? 'Remove' : 'Save'} ${name}${saved ? ' from saved products' : ''}"
+          aria-pressed="${saved}"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 0 1 8 3.622 3.5 3.5 0 0 1 14.5 5.5C14.5 9.5 8 13.5 8 13.5Z"
@@ -276,15 +299,15 @@ function createProductCard(product, index) {
         </button>
 
         <!-- Image -->
-        <img
+        <a class="product-card__image-link" href="#product/${id}" aria-label="View ${name}"><img
           class="product-card__image"
           src="${image}"
           alt="${name}"
           loading="lazy"
           width="400"
           height="300"
-          onerror="this.style.display='none'; this.parentNode.querySelector('.product-card__image-placeholder').style.display='flex'"
-        />
+          onerror="this.style.display='none'; this.closest('.product-card__media').querySelector('.product-card__image-placeholder').style.display='flex'"
+        /></a>
         <!-- Placeholder shown on image load error -->
         <div class="product-card__image-placeholder" style="display:none" aria-hidden="true">
           ${CATEGORY_ICONS[category] ?? '📦'}
@@ -297,7 +320,7 @@ function createProductCard(product, index) {
 
         <span class="product-card__brand">${brand}</span>
 
-        <h3 class="product-card__name">${name}</h3>
+        <h3 class="product-card__name"><a href="#product/${id}">${name}</a></h3>
 
         <!-- Rating -->
         <div class="product-card__rating">
@@ -511,12 +534,26 @@ export function initCatalog() {
       PRODUCTS,
       state.filters,
       state.sortBy,
+      state.wishlist,
     );
 
     renderCatalog(filtered);
     updateCatalogTitle(state.filters.categories);
     updateActiveFiltersBadge(state.filters);
   }, 'filters');
+
+  store.subscribe((state) => {
+    if (state.filters.savedOnly) {
+      renderCatalog(getFilteredProducts(PRODUCTS, state.filters, state.sortBy, state.wishlist));
+    }
+    document.querySelectorAll('[data-js="wishlist-toggle"]').forEach(button => {
+      const saved = state.wishlist.includes(button.dataset.productId);
+      const product = PRODUCTS.find(item => item.id === button.dataset.productId);
+      button.classList.toggle('product-card__wishlist--active', saved);
+      button.setAttribute('aria-pressed', String(saved));
+      button.setAttribute('aria-label', `${saved ? 'Remove' : 'Save'} ${product?.name ?? 'product'}${saved ? ' from saved products' : ''}`);
+    });
+  }, 'wishlist');
 
   // Initialize click delegation on product cards
   initCardDelegation();
@@ -591,8 +628,5 @@ function handleAddToCart(btn) {
  * @param {HTMLElement} btn
  */
 function handleWishlistToggle(btn) {
-  const isActive = btn.getAttribute('aria-pressed') === 'true';
-  btn.setAttribute('aria-pressed', String(!isActive));
-  btn.classList.toggle('product-card__wishlist--active', !isActive);
-  // TODO: store.toggleWishlist(productId) — to be implemented in the next steps
+  store.toggleWishlist(btn.dataset.productId);
 }

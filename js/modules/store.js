@@ -2,7 +2,7 @@
  * store.js — Centralized state store for CyberGear
  */
 
-import { saveCart, loadCart } from '../utils/storage.js';
+import { saveCart, loadCart, saveWishlist, loadWishlist } from '../utils/storage.js';
 import { clamp } from '../utils/helpers.js';
 
 // --------------------------------------------------------------------------
@@ -16,6 +16,7 @@ const DEFAULT_FILTERS = {
   priceMin:     0,          
   priceMax:     Infinity,   
   searchQuery:  '',         
+  savedOnly:    false,
 };
 
 const PROMO_CODES = {
@@ -26,6 +27,7 @@ const PROMO_CODES = {
 
 const createInitialState = () => ({
   cart:    loadCart(),   
+  wishlist: loadWishlist(),
   filters: { ...DEFAULT_FILTERS },
   sortBy:  'popularity', 
   promo: {
@@ -51,6 +53,7 @@ function createStore() {
 
   const listeners = new Map([
     ['cart',    new Set()],
+    ['wishlist', new Set()],
     ['filters', new Set()],
     ['ui',      new Set()],
     ['*',       new Set()], 
@@ -115,13 +118,23 @@ function createStore() {
 
     // ---- CART MANAGEMENT ----
 
+    toggleWishlist(productId) {
+      const wishlist = state.wishlist.includes(productId)
+        ? state.wishlist.filter(id => id !== productId)
+        : [...state.wishlist, productId];
+      state = { ...state, wishlist };
+      saveWishlist(wishlist);
+      notify('wishlist');
+    },
+
     addToCart(product) {
+      if (!product?.inStock) return;
       const existing = state.cart.find(item => item.id === product.id);
 
       if (existing) {
         const updatedCart = state.cart.map(item =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min(99, item.quantity + 1) }
             : item
         );
         setCart(updatedCart);
