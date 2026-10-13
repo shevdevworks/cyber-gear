@@ -15,10 +15,12 @@ function animateImage(image) {
   ], { duration: 650, easing: 'cubic-bezier(.16,1,.3,1)' });
 }
 
+let sceneModule;
+const loadScenes = () => sceneModule ??= import('./product-scenes.js');
+
 function initHero() {
   const stage = document.querySelector('[data-js="hero-stage"]');
   const image = stage.querySelector('[data-js="hero-image"]');
-  const productLayer = stage.querySelector('[data-js="hero-product"]');
   const detail = stage.querySelector('[data-js="hero-detail"]');
   const features = {
     'kb-wooting-60he': ['60HE', 'Analog precision.\nCompact by design.'],
@@ -26,21 +28,21 @@ function initHero() {
     'kb-nuphy-air75': ['AIR75', 'Low profile.\nA lighter touch.'],
   };
   let selected = 'kb-wooting-60he';
-  let generation = 0;
+  let scene;
   const choices = [...document.querySelectorAll('[data-hero-product]')];
-  choices.forEach(button => button.addEventListener('click', async () => {
+  const explode = document.querySelector('[data-js="hero-explode"]');
+  function expandedState(value) {
+    explode.setAttribute('aria-pressed', String(value));
+    explode.querySelector('span').textContent = value ? 'Bring it together' : 'Explore the layers';
+  }
+  choices.forEach(button => button.addEventListener('click', () => {
     const product = findProduct(button.dataset.heroProduct);
     if (!product || product.id === selected) return;
     selected = product.id;
-    const request = ++generation;
     choices.forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
-    const preload = new Image();
-    preload.src = product.image;
-    try { await preload.decode(); } catch { return; }
-    if (request !== generation) return;
     image.src = product.image;
     image.alt = product.name;
-    productLayer.dataset.model = product.id;
+    stage.querySelector('[data-js="hero-product"]').dataset.model = product.id;
     detail.href = `#product/${product.id}`;
     stage.querySelector('[data-js="hero-name"]').textContent = product.name;
     stage.querySelector('[data-js="hero-price"]').textContent = formatPrice(product.price);
@@ -48,32 +50,25 @@ function initHero() {
     const feature = stage.querySelector('[data-js="hero-feature"]');
     feature.textContent = features[product.id][1];
     feature.style.whiteSpace = 'pre-line';
-    animateImage(image);
+    if (scene) scene.select(product.id);
+    else animateImage(image);
   }));
-
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-  let frame = 0;
-  stage.addEventListener('pointermove', event => {
-    if (motion.matches || !finePointer.matches || frame) return;
-    frame = requestAnimationFrame(() => {
-      const rect = stage.getBoundingClientRect();
-      productLayer.style.setProperty('--pointer-x', `${((event.clientX - rect.left) / rect.width - .5) * 14}px`);
-      productLayer.style.setProperty('--pointer-y', `${((event.clientY - rect.top) / rect.height - .5) * 10}px`);
-      productLayer.style.setProperty('--tilt-x', `${((event.clientY - rect.top) / rect.height - .5) * -3}deg`);
-      productLayer.style.setProperty('--tilt-y', `${((event.clientX - rect.left) / rect.width - .5) * 4}deg`);
-      frame = 0;
-    });
+  explode.addEventListener('click', () => {
+    const value = explode.getAttribute('aria-pressed') !== 'true';
+    expandedState(value);
+    scene?.explode(value);
   });
-  const resetPointer = () => {
-    cancelAnimationFrame(frame);
-    frame = 0;
-    productLayer.style.setProperty('--pointer-x', '0px');
-    productLayer.style.setProperty('--pointer-y', '0px');
-    productLayer.style.setProperty('--tilt-x', '0deg');
-    productLayer.style.setProperty('--tilt-y', '0deg');
-  };
-  stage.addEventListener('pointerleave', resetPointer);
-  motion.addEventListener('change', resetPointer);
+  document.querySelector('[data-js="hero-replay"]').addEventListener('click', () => {
+    expandedState(false);
+    scene?.replay();
+  });
+  // The storefront is usable before the optional rendering module arrives.
+  requestAnimationFrame(() => {
+    loadScenes().then(({ createHeroScene }) => {
+      scene = createHeroScene(stage.querySelector('[data-js="hero-scene"]'), selected);
+      document.querySelector('[data-js="hero-scene-controls"]').hidden = false;
+    }).catch(() => { /* Product photography remains the WebGL/network fallback. */ });
+  });
 }
 
 function initCollection() {
@@ -81,6 +76,10 @@ function initCollection() {
   const reveal = () => catalog.scrollIntoView({ behavior: motion.matches ? 'instant' : 'smooth', block: 'start' });
   document.querySelectorAll('[data-collection]').forEach(button => button.addEventListener('click', () => {
     store.setFilters({ categories: button.dataset.collection === 'all' ? [] : [button.dataset.collection], savedOnly: false });
+  }));
+  document.querySelectorAll('[data-category-jump]').forEach(button => button.addEventListener('click', () => {
+    store.setFilters({ categories: [button.dataset.categoryJump], savedOnly: false });
+    reveal();
   }));
   const savedButtons = [...document.querySelectorAll('[data-js="wishlist-filter"], [data-js="saved-tab"]')];
   savedButtons.forEach(button => button.addEventListener('click', () => {
@@ -112,6 +111,7 @@ function initSetup() {
   };
   const categories = ['keyboards', 'mice', 'headsets'];
   const selected = Object.fromEntries(categories.map((category, index) => [category, presets.performance[index]]));
+  let scene;
   const selects = [...document.querySelectorAll('[data-setup-select]')];
   selects.forEach(select => {
     select.replaceChildren(...PRODUCTS.filter(product => product.category === select.dataset.setupSelect && product.inStock)
@@ -135,6 +135,7 @@ function initSetup() {
         if (animate) animateImage(image);
       }
     });
+    scene?.select(selected);
     document.querySelector('[data-js="setup-total"]').textContent = formatPrice(categories.reduce((sum, category) => sum + findProduct(selected[category]).price, 0));
     document.querySelectorAll('[data-setup-preset]').forEach(button => {
       button.setAttribute('aria-pressed', String(presets[button.dataset.setupPreset].every((id, index) => id === selected[categories[index]])));
@@ -150,6 +151,20 @@ function initSetup() {
     showToast('Your setup is in the cart', 'success');
   });
   update(false);
+  const host = document.querySelector('[data-js="setup-scene"]');
+  const observer = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting)) return;
+    observer.disconnect();
+    loadScenes().then(({ createSetupScene }) => {
+      scene = createSetupScene(host, selected);
+      document.querySelector('[data-js="setup-scene-controls"]').hidden = false;
+    }).catch(() => { /* Keep the three selected product photos available. */ });
+  }, { rootMargin: '300px' });
+  observer.observe(host);
+  document.querySelectorAll('[data-setup-view]').forEach(button => button.addEventListener('click', () => {
+    document.querySelectorAll('[data-setup-view]').forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
+    scene?.angle(button.dataset.setupView);
+  }));
 }
 
 function initProductDetails() {

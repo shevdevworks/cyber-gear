@@ -70,8 +70,8 @@
 }
 
 .badge--discount  {
-  background: #f6f3ff;
-  color: #5a40a8;
+  background: #eee4ff;
+  color: #681ddb;
 }
 
 .badge--out-of-stock  {
@@ -99,11 +99,11 @@
 }
 
 .product-card__wishlist--active  {
-  color: #694ce0;
+  color: #7938ff;
 }
 
 .product-card__wishlist--active svg  {
-  fill: #694ce01c;
+  fill: #7938ff1c;
 }
 
 .product-card__body  {
@@ -143,7 +143,7 @@
   display: flex;
   gap: 1px;
   font-size: 10px;
-  color: #6d647f;
+  color: #7938ff;
 }
 
 .star--empty  {
@@ -233,8 +233,8 @@
 
 .product-card__add-btn--added, .product-card__add-btn--added:hover  {
   color: #fff;
-  background: #694ce0;
-  border-color: #694ce0;
+  background: #7938ff;
+  border-color: #7938ff;
 }
 
 .product-card__add-btn:disabled  {

@@ -10,6 +10,7 @@ import { $$, debounce }                           from './utils/helpers.js';
 import { showToast }                              from './utils/toast.js';
 import PRODUCTS                                   from './data/products.js';
 import { initStudio }                             from './modules/studio.js';
+import { normalizePriceRange, PRICE_LIMIT }       from './utils/price-range.js';
 
 /** Same breakpoint as the filters drawer in filters.css */
 const DRAWER_MQ = window.matchMedia('(max-width: 1024px)');
@@ -138,95 +139,64 @@ function initStickyHeader() {
 // --------------------------------------------------------------------------
 
 function initPriceRangeSlider() {
-  const rangeContainer = document.querySelector('[data-js="price-range"]');
-  if (!rangeContainer) return;
-
-  const thumbMin = rangeContainer.querySelector('[data-js="range-min"]');
-  const thumbMax = rangeContainer.querySelector('[data-js="range-max"]');
-  const fillEl   = rangeContainer.querySelector('[data-js="price-fill"]');
+  const range = document.querySelector('[data-js="price-range"]');
+  if (!range) return;
+  const thumbMin = range.querySelector('[data-js="range-min"]');
+  const thumbMax = range.querySelector('[data-js="range-max"]');
+  const fill = range.querySelector('[data-js="price-fill"]');
   const inputMin = document.querySelector('[data-js="price-min"]');
   const inputMax = document.querySelector('[data-js="price-max"]');
-
-  if (!thumbMin || !thumbMax || !fillEl) return;
-
-  const PRICE_MIN = 0;
-  const PRICE_MAX = 500; // catalog currently tops out at $439 (Audeze Maxwell) — adjust if pricier items are added
-
-  const percentToPrice = (pct) =>
-    Math.round(PRICE_MIN + (pct / 100) * (PRICE_MAX - PRICE_MIN));
-
-  const priceToPercent = (price) =>
-    Math.round(((price - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100);
-
-  function updateSliderUI() {
-    let minVal = parseInt(thumbMin.value, 10);
-    let maxVal = parseInt(thumbMax.value, 10);
-    const GAP  = 1;
-
-    if (minVal >= maxVal - GAP) {
-      if (document.activeElement === thumbMin || document.activeElement === inputMin) {
-        minVal = maxVal - GAP;
-        thumbMin.value = minVal;
-      } else {
-        maxVal = minVal + GAP;
-        thumbMax.value = maxVal;
-      }
-    }
-
-    fillEl.style.setProperty('--range-min', minVal);
-    fillEl.style.setProperty('--range-max', maxVal);
-
-    const priceMin = percentToPrice(minVal);
-    const priceMax = percentToPrice(maxVal);
-    if (inputMin) inputMin.value = priceMin;
-    if (inputMax) inputMax.value = priceMax;
-    return { priceMin, priceMax };
+  const histogram = document.querySelector('[data-js="price-histogram"]');
+  const presets = [...document.querySelectorAll('[data-price-preset]')];
+  let timer;
+  const bins = Array.from({ length: 20 }, (_, index) => PRODUCTS.filter(product => product.price / 100 >= index * 25 && product.price / 100 < (index + 1) * 25).length);
+  const highest = Math.max(...bins, 1);
+  histogram.replaceChildren(...bins.map((count, index) => {
+    const bar = document.createElement('span');
+    bar.style.setProperty('--bar-height', `${Math.max(5, count / highest * 100)}%`);
+    bar.dataset.price = index * 25 + 12.5;
+    return bar;
+  }));
+  function paint(min, max) {
+    thumbMin.value = inputMin.value = min;
+    thumbMax.value = inputMax.value = max;
+    thumbMin.setAttribute('aria-valuetext', `$${min}`);
+    thumbMax.setAttribute('aria-valuetext', max === PRICE_LIMIT ? '$500 or more' : `$${max}`);
+    fill.style.setProperty('--range-min', min / PRICE_LIMIT * 100);
+    fill.style.setProperty('--range-max', max / PRICE_LIMIT * 100);
+    thumbMin.style.zIndex = min > PRICE_LIMIT / 2 ? '2' : '1';
+    histogram.querySelectorAll('span').forEach(bar => bar.classList.toggle('is-outside', Number(bar.dataset.price) < min || Number(bar.dataset.price) > max));
+    presets.forEach(button => button.setAttribute('aria-pressed', String(min === 0 && max === Number(button.dataset.pricePreset))));
   }
-
-  const dispatchToStore = debounce(({ priceMin, priceMax }) => {
-    store.setFilters({
-      priceMin: priceMin * 100,
-      priceMax: priceMax === PRICE_MAX ? Infinity : priceMax * 100,
-    });
-  }, 200);
-
-  function onThumbInput() {
-    const prices = updateSliderUI();
-    dispatchToStore(prices);
+  function commit(min, max) {
+    clearTimeout(timer);
+    store.setFilters({ priceMin: min * 100, priceMax: max === PRICE_LIMIT ? Infinity : max * 100 });
   }
-
-  thumbMin.addEventListener('input', onThumbInput);
-  thumbMax.addEventListener('input', onThumbInput);
-
-  if (inputMin) {
-    inputMin.addEventListener('change', () => {
-      thumbMin.value = priceToPercent(parseInt(inputMin.value, 10) || PRICE_MIN);
-      const prices = updateSliderUI();
-      dispatchToStore(prices);
-    });
+  function change(source, immediate) {
+    const numeric = source === inputMin || source === inputMax;
+    const { min, max } = normalizePriceRange(numeric ? inputMin.value : thumbMin.value, numeric ? inputMax.value : thumbMax.value, source === inputMin || source === thumbMin ? 'min' : 'max');
+    paint(min, max);
+    clearTimeout(timer);
+    if (immediate) commit(min, max);
+    else timer = setTimeout(() => commit(min, max), 100);
   }
-
-  if (inputMax) {
-    inputMax.addEventListener('change', () => {
-      const value = parseInt(inputMax.value, 10);
-      thumbMax.value = priceToPercent(Number.isNaN(value) ? PRICE_MAX : value);
-      const prices = updateSliderUI();
-      dispatchToStore(prices);
-    });
-  }
-
-  // "Reset all" clears the price in the store — bring the slider back too
+  [thumbMin, thumbMax].forEach(thumb => {
+    thumb.addEventListener('input', () => change(thumb, false));
+    thumb.addEventListener('change', () => change(thumb, true));
+  });
+  [inputMin, inputMax].forEach(input => {
+    input.max = PRICE_LIMIT;
+    input.addEventListener('change', () => change(input, true));
+  });
+  presets.forEach(button => button.addEventListener('click', () => {
+    const max = button.getAttribute('aria-pressed') === 'true' ? PRICE_LIMIT : Number(button.dataset.pricePreset);
+    commit(0, max);
+  }));
   store.subscribe(({ filters }) => {
-    const isDefault = filters.priceMin === 0 && filters.priceMax === Infinity;
-    const uiIsDefault = thumbMin.value === '0' && thumbMax.value === '100';
-    const isDragging = [thumbMin, thumbMax, inputMin, inputMax].includes(document.activeElement);
-
-    if (isDefault && !uiIsDefault && !isDragging) {
-      thumbMin.value = 0;
-      thumbMax.value = 100;
-      updateSliderUI();
-    }
+    clearTimeout(timer);
+    paint(filters.priceMin / 100, filters.priceMax === Infinity ? PRICE_LIMIT : filters.priceMax / 100);
   }, 'filters');
+  paint(0, PRICE_LIMIT);
 }
 
 // --------------------------------------------------------------------------

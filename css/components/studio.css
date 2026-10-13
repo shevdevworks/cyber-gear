@@ -42,12 +42,12 @@
 }
 
 .studio-button--violet  {
-  background: #694ce0;
+  background: #7938ff;
   color: #fff;
 }
 
 .studio-button--violet:hover  {
-  background: #593acb;
+  background: #6520ec;
 }
 
 .studio-button:disabled  {
@@ -162,7 +162,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #694ce0;
+  background: #7938ff;
 }
 
 .collection-tabs .collection-tabs__saved  {
@@ -334,7 +334,7 @@
 }
 
 .setup__kicker  {
-  color: #b9a6ed;
+  color: #b880ff;
   font-size: 12px;
   margin-bottom: 12px;
 }
@@ -500,12 +500,12 @@
 .setup__controls > .studio-button  {
   width: 100%;
   justify-content: space-between;
-  background: #b8a4f2;
-  color: #25202f;
+  background: #7938ff;
+  color: #fff;
 }
 
 .setup__controls > .studio-button:hover  {
-  background: #c8b5ff;
+  background: #6520ec;
 }
 
 .studio-note  {
@@ -673,7 +673,7 @@
   content: '';
   width: 5px;
   height: 5px;
-  background: #558d74;
+  background: #00a66f;
   border-radius: 50%;
 }
 
@@ -700,8 +700,8 @@
 }
 
 .product-detail__save[aria-pressed='true']  {
-  color: #694ce0;
-  background: #ece7f8;
+  color: #7938ff;
+  background: #eadeff;
 }
 
 .product-detail__specs  {
