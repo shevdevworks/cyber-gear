@@ -4,7 +4,7 @@ A product-led storefront for keyboards, mice and audio. Graphite product stages,
 
 [Live demo](https://shevdevworks.github.io/cyber-gear/)
 
-![CyberGear storefront](assets/images/og-cover.png)
+![CyberGear storefront](assets/images/og-performance-studio.png)
 
 ## The experience
 
@@ -28,6 +28,8 @@ python -m http.server 4173 --bind 127.0.0.1
 ```
 
 Open [localhost:4173](http://127.0.0.1:4173). ES modules require HTTP; opening the HTML directly as a file will not work. Hard-refresh after editing if your static server or browser caches modules.
+
+The social preview is exported from `scripts/social-cover.html`, which reuses the storefront's keyboard scene. Capture it at a 1200 × 630 viewport with reduced motion enabled, after `.scene.is-ready` appears and `document.fonts.ready` resolves. A 2x device scale with a CSS-scale screenshot improves the keyboard's edge quality while keeping the PNG at 1200 × 630. When replacing a published cover, use a new image filename and update both Open Graph and Twitter metadata so image caches can distinguish versions.
 
 ## Verification
 
